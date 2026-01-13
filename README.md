@@ -1,4 +1,4 @@
-# Student – David
+# Student – Chante
 
 This repository contains all approved work, learning material, and project contributions completed by David as part of the Biko Today programme.
 
