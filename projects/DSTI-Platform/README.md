@@ -77,16 +77,19 @@ Visit [http://localhost:3000](http://localhost:3000)
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 - `npm run typecheck` - Run TypeScript type checking
+- `npm run db:push` - Push schema to database
+- `npm run db:seed` - Seed database with demo data
+- `npm run db:reset` - Reset database and reseed
+- `npx prisma studio` - Open database browser
 
 ##  Sprint Progress
 
-### Week 1 (Jan 13-17)  Day 1 Complete
-- [x] Repo setup + Next.js baseline
-- [x] Prisma + PostgreSQL
-- [x] Route groups (/, /portal, /admin)
-- [x] Shared layout components
-- [x] GitHub Actions CI
-- [ ] Day 2: Data model v1
+### Week 1 (Jan 13-17)  Day 2 Complete
+- [x] **Day 1**: Repo setup + Next.js baseline
+- [x] **Day 2**: Data model v1 + migrations + seed
+  - [x] Comprehensive Prisma schema (12 models, 3 enums)
+  - [x] Database migrations generated
+  - [x] Seed script with demo data (4 users, 1 org, 1 project)
 - [ ] Day 3: Auth + RBAC
 - [ ] Day 4: Public website
 - [ ] Day 5: Eligibility screener
