@@ -1,51 +1,104 @@
-import { ArrowRight, CheckCircle, Shield, Sparkles, FileCheck } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { ArrowRight, CheckCircle, Shield, Sparkles, FileCheck, Menu, X } from "lucide-react";
 
 export default function HomePage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <a href="/" className="text-2xl font-bold text-blue-600">
+            <a href="/" className="text-xl sm:text-2xl font-bold text-blue-600">
               DSTI R&D Platform
             </a>
-            <nav className="flex gap-6">
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex gap-6">
               <a href="/how-it-works" className="text-gray-600 hover:text-blue-600 transition">
                 How It Works
               </a>
               <a href="/guidelines" className="text-gray-600 hover:text-blue-600 transition">
                 Guidelines
               </a>
-              <a href="/login" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              <a href="/login" className="text-gray-600 hover:text-blue-600 transition">
                 Sign In
               </a>
+              <a href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                Register
+              </a>
             </nav>
+
+            {/* Mobile Menu Button */}
+            <button
+              className="md:hidden p-2 text-gray-600 hover:text-blue-600 transition"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <nav className="md:hidden mt-4 pb-4 flex flex-col gap-3">
+              <a
+                href="/how-it-works"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                How It Works
+              </a>
+              <a
+                href="/guidelines"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Guidelines
+              </a>
+              <a
+                href="/login"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Sign In
+              </a>
+              <a
+                href="/register"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Register
+              </a>
+            </nav>
+          )}
         </div>
       </header>
 
       {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center mb-16">
-          <h1 className="text-6xl font-bold text-gray-900 mb-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <div className="text-center mb-12 sm:mb-16">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
             R&D Tax Incentive Platform
           </h1>
-          <p className="text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto">
             Modern, Secure, Audit-Ready Application System for South Africa's Section 11D Programme
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/eligibility"
-              className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-lg font-semibold shadow-lg flex items-center gap-2"
+              className="px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-base sm:text-lg font-semibold shadow-lg flex items-center justify-center gap-2"
             >
               Check Eligibility <ArrowRight className="w-5 h-5" />
             </a>
             <a
-              href="/portal"
-              className="px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition text-lg font-semibold shadow-lg"
+              href="/register"
+              className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition text-base sm:text-lg font-semibold shadow-lg"
             >
-              Start Application
+              Register Now
             </a>
           </div>
         </div>

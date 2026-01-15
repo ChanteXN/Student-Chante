@@ -84,7 +84,7 @@ Visit [http://localhost:3000](http://localhost:3000)
 
 ##  Sprint Progress
 
-### Week 1 (Jan 13-17) ✅ Day 4 Complete
+### Week 1 (Jan 13-17) ✅ Day 5 Complete
 - [x] **Day 1**: Repo setup + Next.js baseline
 - [x] **Day 2**: Data model v1 + migrations + seed
   - [x] Comprehensive Prisma schema (12 models, 3 enums)
@@ -107,43 +107,67 @@ Visit [http://localhost:3000](http://localhost:3000)
   - [x] Consistent navigation and footer across public pages
   - [x] shadcn/ui components (Input, Badge) installed
   - [x] Mobile responsive design
-- [ ] **Day 5**: Eligibility screener v1 + deployment
+- [x] **Day 5**: Eligibility screener + registration system
+  - [x] 7-question eligibility screener with weighted scoring
+  - [x] 3-tier outcome system (eligible 80%+, borderline 60-79%, not eligible <60%)
+  - [x] Visual results with score progress bar and checklist
+  - [x] Complete registration system (page + API + database)
+  - [x] Organization creation during signup (optional)
+  - [x] User flow optimization (eligibility → register → login → portal)
+  - [x] Middleware fix for public routes (/register, /eligibility, etc.)
+  - [x] Full mobile responsiveness with hamburger menu
+  - [x] Login page success banner after registration
+  - [x] Hydration error fixes (Input and Button components)
 
-### Day 4 Deliverables Summary
+### Day 5 Deliverables Summary
+
+**Problem Identified:**
+- Platform had login but no registration system - critical gap preventing new users from creating accounts
 
 **Pages Created:**
-- `/` - Enhanced landing page with hero section, 4 feature cards, stats section, CTA
-- `/how-it-works` - 5-step visual timeline explaining application process
-- `/guidelines` - Searchable knowledge base with 6 full guideline articles
+- `/eligibility` - Public eligibility screener with 7 weighted questions
+- `/register` - User registration page with name, email, organization fields
 
-**Guidelines Content:**
-1. Section 11D R&D Tax Incentive Overview
-2. Defining R&D Activities (uncertainty, investigation, advancement)
-3. Eligible Expenditure Categories (staff, consumables, depreciation)
-4. Evidence Requirements & Best Practices
-5. Application Process & Timeline
-6. Common Rejection Reasons & How to Avoid Them
+**API Endpoints:**
+- `POST /api/auth/register` - Create new APPLICANT users with optional organization
 
 **Features Implemented:**
-- Real-time search filtering (title, description, category, tags)
-- Clickable guideline cards open full content in modal
-- Modal with markdown rendering, badges, close functionality
-- Result count display
-- Responsive layout with Tailwind CSS
-- Consistent header/footer navigation
-- Icon system (lucide-react)
+- Multi-step eligibility form with Yes/No/Unsure options
+- Smart scoring: required criteria + percentage-based outcome tiers
+- Contextual next steps based on qualification result
+- User registration with duplicate email detection (409 response)
+- Auto-create Organization + Membership when org name provided
+- Success animation with auto-redirect to login
+- Login page shows success banner after registration (query param detection)
+- Middleware whitelist for public routes (fixed redirect loop)
+
+**Mobile Responsiveness:**
+- Landing page hamburger menu (Menu/X icon toggle)
+- Responsive hero section (text scales, buttons stack on mobile)
+- Eligibility page mobile optimization (stacked buttons, responsive cards)
+- Registration page mobile layout (full width, centered container)
+- Tested on 320px to 1920px screen widths
+
+**User Flow:**
+Landing → Check Eligibility → See Results → Start Application → Register → Login → Magic Link → Portal
 
 **Technical:**
-- Client-side state management with useState
-- suppressHydrationWarning to handle browser extension interference
+- Weighted scoring algorithm with required question validation
+- Client-side form validation + server-side validation
 - TypeScript type safety throughout
-- shadcn/ui component integration
+- suppressHydrationWarning for browser extension compatibility
+- Email lowercase normalization for consistency
 
-**Next Steps (Day 5):**
-- Build eligibility screener form
-- Implement qualification decision logic
-- Display outcome with next steps CTA
-- Deploy v1 and verify mobile responsiveness
+**Documentation:**
+- Comprehensive Day 5 summary (`docs/DAY-5-SUMMARY.md`)
+- Testing checklist with all scenarios validated
+- Phase 2 enhancement roadmap
+
+**Next Steps (Day 6-7):**
+- Project Builder Wizard with 5 steps
+- Autosave and resume functionality
+- React Hook Form + Zod validation
+- Progress indicator UI
 
 
 
