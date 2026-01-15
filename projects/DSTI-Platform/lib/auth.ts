@@ -28,14 +28,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      // On sign-in, store the user's role
       if (user) {
         token.role = (user as { role: string }).role;
+      }
+      // Ensure role persists through token updates
+      if (trigger === "update" && !token.role) {
+        // Fetch role from database if missing
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { role: true },
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+        }
       }
       return token;
     },
   },
   session: {
     strategy: "jwt",
+    maxAge: 12 * 60 * 60, // 12 hours - session expires after 12 hours of inactivity
+    updateAge: 60 * 60, // 1 hour - refresh token every hour of activity
   },
 });

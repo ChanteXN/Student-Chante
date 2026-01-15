@@ -1,5 +1,6 @@
-import { auth } from "@/lib/auth";
+import { auth, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default async function PortalPage() {
   const session = await auth();
@@ -10,11 +11,23 @@ export default async function PortalPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Applicant Portal</h1>
-        <p className="text-gray-600 mt-2">
-          Welcome, {session.user.email} ({session.user.role})
-        </p>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">Applicant Portal</h1>
+          <p className="text-gray-600 mt-2">
+            Welcome, {session.user.email} ({session.user.role})
+          </p>
+        </div>
+        <form
+          action={async () => {
+            "use server";
+            await signOut({ redirectTo: "/" });
+          }}
+        >
+          <Button type="submit" variant="outline">
+            Sign Out
+          </Button>
+        </form>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

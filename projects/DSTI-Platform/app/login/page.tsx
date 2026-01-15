@@ -18,7 +18,7 @@ export default function LoginPage() {
       await signIn("nodemailer", {
         email,
         redirect: false,
-        callbackUrl: "/portal/dashboard",
+        callbackUrl: "/portal",
       });
       setEmailSent(true);
     } catch (error) {
