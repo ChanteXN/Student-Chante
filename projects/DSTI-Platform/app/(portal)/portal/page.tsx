@@ -34,7 +34,7 @@ export default async function PortalPage() {
 
       <div className="mt-8 bg-green-50 border border-green-200 rounded p-4">
         <h2 className="text-lg font-semibold text-green-900 mb-2">
-          ✅ Day 3 Authentication Complete!
+           Day 3 Authentication Complete!
         </h2>
         <ul className="text-sm text-green-800 space-y-1">
           <li>✓ NextAuth.js configured with magic link authentication</li>
