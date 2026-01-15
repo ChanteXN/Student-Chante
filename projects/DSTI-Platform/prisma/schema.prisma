@@ -1,15 +1,265 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER & AUTHENTICATION
+// ============================================================================
+
+enum UserRole {
+  APPLICANT
+  CONSULTANT
+  REVIEWER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      UserRole @default(APPLICANT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  memberships         Membership[]
+  reviewerAssignments ReviewerAssignment[]
+  reviewerNotes       ReviewerNote[]
+  auditEvents         AuditEvent[]
+
+  @@map("users")
+}
+
+// ============================================================================
+// ORGANISATION & MEMBERSHIP
+// ============================================================================
+
+model Organisation {
+  id             String   @id @default(cuid())
+  name           String
+  registrationNo String?
+  sector         String?
+  address        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  memberships Membership[]
+  projects    Project[]
+
+  @@map("organisations")
+}
+
+model Membership {
+  id             String   @id @default(cuid())
+  userId         String
+  organisationId String
+  role           String   @default("member") // member, admin, authorized_signatory
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organisationId])
+  @@map("memberships")
+}
+
+// ============================================================================
+// PROJECT & APPLICATION
+// ============================================================================
+
+enum ProjectStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  PENDING_INFO
+  APPROVED
+  DECLINED
+  WITHDRAWN
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  organisationId String
+  title          String
+  sector         String?
+  startDate      DateTime?
+  endDate        DateTime?
+  location       String?
+  status         ProjectStatus @default(DRAFT)
+  readinessScore Int?
+  submittedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Relations
+  organisation        Organisation           @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  sections            ProjectSection[]
+  statusHistory       ProjectStatusHistory[]
+  evidenceFiles       EvidenceFile[]
+  reviewRequests      ReviewRequest[]
+  reviewerAssignments ReviewerAssignment[]
+
+  @@map("projects")
+}
+
+model ProjectSection {
+  id          String   @id @default(cuid())
+  projectId   String
+  sectionKey  String // e.g., "basics", "uncertainty", "methodology", "team", "expenditure"
+  sectionData Json // Store form data as JSON
+  isComplete  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, sectionKey])
+  @@map("project_sections")
+}
+
+model ProjectStatusHistory {
+  id        String        @id @default(cuid())
+  projectId String
+  status    ProjectStatus
+  notes     String?
+  createdBy String?
+  createdAt DateTime      @default(now())
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_status_history")
+}
+
+// ============================================================================
+// EVIDENCE & DOCUMENTS
+// ============================================================================
+
+model EvidenceCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isRequired  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  // Relations
+  evidenceFiles EvidenceFile[]
+
+  @@map("evidence_categories")
+}
+
+model EvidenceFile {
+  id         String   @id @default(cuid())
+  projectId  String
+  categoryId String?
+  fileName   String
+  fileSize   Int
+  filePath   String
+  mimeType   String?
+  uploadedBy String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  project  Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  category EvidenceCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@map("evidence_files")
+}
+
+// ============================================================================
+// REVIEW & DECISION WORKFLOW
+// ============================================================================
+
+enum ReviewRequestStatus {
+  PENDING
+  RESPONDED
+  RESOLVED
+}
+
+model ReviewRequest {
+  id          String              @id @default(cuid())
+  projectId   String
+  requestedBy String?
+  subject     String
+  message     String
+  status      ReviewRequestStatus @default(PENDING)
+  response    String?
+  respondedAt DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("review_requests")
+}
+
+model ReviewerAssignment {
+  id          String    @id @default(cuid())
+  projectId   String
+  reviewerId  String
+  assignedAt  DateTime  @default(now())
+  completedAt DateTime?
+
+  // Relations
+  project  Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  reviewer User           @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  notes    ReviewerNote[]
+
+  @@unique([projectId, reviewerId])
+  @@map("reviewer_assignments")
+}
+
+model ReviewerNote {
+  id           String   @id @default(cuid())
+  assignmentId String
+  reviewerId   String
+  category     String? // e.g., "methodology", "evidence", "risk"
+  note         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  assignment ReviewerAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  reviewer   User               @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  @@map("reviewer_notes")
+}
+
+// ============================================================================
+// AUDIT & COMPLIANCE
+// ============================================================================
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String // e.g., "PROJECT_CREATED", "STATUS_CHANGED", "EVIDENCE_UPLOADED"
+  entityType String? // e.g., "project", "evidence", "review"
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_events")
 }
