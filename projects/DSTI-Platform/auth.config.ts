@@ -27,7 +27,16 @@ export const authConfig = {
       const { pathname } = nextUrl;
 
       // Public routes that don't require authentication
-      const publicRoutes = ["/", "/login", "/auth/verify-request", "/auth/error"];
+      const publicRoutes = [
+        "/",
+        "/login",
+        "/register",
+        "/eligibility",
+        "/how-it-works",
+        "/guidelines",
+        "/auth/verify-request",
+        "/auth/error",
+      ];
       if (publicRoutes.includes(pathname) || pathname.startsWith("/api/auth")) {
         return true;
       }
