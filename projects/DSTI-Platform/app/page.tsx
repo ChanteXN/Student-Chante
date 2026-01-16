@@ -37,6 +37,7 @@ export default function HomePage() {
               className="md:hidden p-2 text-gray-600 hover:text-blue-600 transition"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
+              suppressHydrationWarning
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
