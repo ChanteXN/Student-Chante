@@ -45,4 +45,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 12 * 60 * 60, // 12 hours - session expires after 12 hours of inactivity
     updateAge: 60 * 60, // 1 hour - refresh token every hour of activity
   },
+  trustHost: true, // Trust the host header
+  debug: process.env.NODE_ENV === "development",
 });

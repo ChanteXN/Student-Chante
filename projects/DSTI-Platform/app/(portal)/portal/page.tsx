@@ -1,14 +1,34 @@
-import { auth, signOut } from "@/lib/auth";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, FolderOpen, Clock, Bell, Plus, ArrowRight, CheckCircle } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { useEffect } from "react";
 
-export default async function PortalPage() {
-  const session = await auth();
+export default function PortalPage() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!session?.user) {
-    redirect("/login");
+    return null;
   }
 
   // Extract first name from email
@@ -27,16 +47,13 @@ export default async function PortalPage() {
             Manage your DSTI funding applications and projects
           </p>
         </div>
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/" });
-          }}
+        <Button 
+          onClick={() => signOut({ callbackUrl: "/" })} 
+          variant="outline" 
+          className="w-full md:w-auto"
         >
-          <Button type="submit" variant="outline" className="w-full md:w-auto">
-            Sign Out
-          </Button>
-        </form>
+          Sign Out
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -102,7 +119,11 @@ export default async function PortalPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Button className="h-auto py-4 flex flex-col items-start gap-2" variant="outline">
+            <Button 
+              className="h-auto py-4 flex flex-col items-start gap-2" 
+              variant="outline"
+              onClick={() => router.push("/portal/projects/new" as any)}
+            >
               <div className="flex items-center gap-2 w-full">
                 <Plus className="h-5 w-5" />
                 <span className="font-semibold">New Application</span>
