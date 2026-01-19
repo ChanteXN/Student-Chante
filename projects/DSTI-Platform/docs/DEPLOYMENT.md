@@ -21,10 +21,10 @@ This guide walks you through deploying the DSTI R&D Tax Incentive Platform to Ve
 ### Option A: Neon PostgreSQL (Recommended - Better Free Tier)
 
 **Why Neon:**
-- ✅ 0.5 GB storage free (vs Vercel 256 MB)
-- ✅ Always-on compute (no cold starts)
-- ✅ Built-in connection pooling
-- ✅ Generous free tier
+-  0.5 GB storage free (vs Vercel 256 MB)
+-  Always-on compute (no cold starts)
+-  Built-in connection pooling
+-  Generous free tier
 
 **Steps:**
 
@@ -59,10 +59,10 @@ This guide walks you through deploying the DSTI R&D Tax Incentive Platform to Ve
 ## Part 2: Email Service Setup (Resend)
 
 **Why Resend:**
-- ✅ 3,000 emails/month free
-- ✅ 100 emails/day free
-- ✅ Built for transactional emails
-- ✅ Simple API, great DX
+-  3,000 emails/month free
+-  100 emails/day free
+-  Built for transactional emails
+-  Simple API, great DX
 
 **Steps:**
 
@@ -572,14 +572,14 @@ Before going live:
 
 ---
 
-## Day 5 Status: Deployment Complete ✅
+## Day 5 Status: Deployment Complete 
 
 **Deployed Services:**
-- ✅ Next.js app on Vercel
-- ✅ PostgreSQL database (Neon/Vercel)
-- ✅ Resend email service
-- ✅ Magic link authentication
-- ✅ All Day 5 features live
+-  Next.js app on Vercel
+-  PostgreSQL database (Neon/Vercel)
+-  Resend email service
+-  Magic link authentication
+-  All Day 5 features live
 
 **Production URL:** `https://your-app.vercel.app`
 
@@ -591,4 +591,4 @@ Before going live:
 - Portal access (authenticated users)
 - Public pages (how-it-works, guidelines)
 
-**Ready for User Testing!** 🚀
+**Ready for User Testing!** 
