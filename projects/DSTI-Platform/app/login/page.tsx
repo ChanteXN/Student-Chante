@@ -27,7 +27,7 @@ function LoginForm() {
     setIsLoading(true);
 
     try {
-      await signIn("nodemailer", {
+      await signIn("resend", {
         email,
         redirect: false,
         callbackUrl: "/portal",
