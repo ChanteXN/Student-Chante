@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,8 +43,8 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push("/login?registered=true");
       }, 2000);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setIsLoading(false);
     }
@@ -63,9 +64,9 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <a href="/" className="inline-block">
+          <Link href="/" className="inline-block">
             <h1 className="text-3xl font-bold text-blue-600 mb-2">DSTI R&D Platform</h1>
-          </a>
+          </Link>
           <p className="text-gray-600">Create your applicant account</p>
         </div>
 
@@ -114,7 +115,7 @@ export default function RegisterPage() {
                     disabled={isLoading}
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    We'll send a magic link to this email for secure login
+                    We&apos;ll send a magic link to this email for secure login
                   </p>
                 </div>
 
@@ -148,7 +149,7 @@ export default function RegisterPage() {
 
                 {/* Terms */}
                 <div className="bg-gray-50 p-3 rounded-lg border text-xs text-gray-600">
-                  By registering, you agree to comply with DSTI's application terms and provide
+                  By registering, you agree to comply with DSTI&apos;s application terms and provide
                   accurate information in your R&D Tax Incentive submission.
                 </div>
 
@@ -200,9 +201,9 @@ export default function RegisterPage() {
 
         {/* Back to Home */}
         <div className="text-center mt-6">
-          <a href="/" className="text-sm text-gray-600 hover:text-gray-900">
+          <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">
             ← Back to Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>
