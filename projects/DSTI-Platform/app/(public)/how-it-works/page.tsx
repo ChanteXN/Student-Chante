@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { CheckCircle2, FileText, Search, Send, UserCheck, Menu, X } from "lucide-react";
 
 export default function HowItWorksPage() {
@@ -49,15 +50,15 @@ export default function HowItWorksPage() {
       <header className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <a href="/" className="text-xl sm:text-2xl font-bold text-blue-600">
+            <Link href="/" className="text-xl sm:text-2xl font-bold text-blue-600">
               DSTI R&D Platform
-            </a>
+            </Link>
             
             {/* Desktop Navigation */}
             <nav className="hidden md:flex gap-6">
-              <a href="/" className="text-gray-600 hover:text-blue-600 transition">
+              <Link href="/" className="text-gray-600 hover:text-blue-600 transition">
                 Home
-              </a>
+              </Link>
               <a href="/how-it-works" className="text-blue-600 font-semibold">
                 How It Works
               </a>
@@ -86,13 +87,13 @@ export default function HowItWorksPage() {
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
             <nav className="md:hidden mt-4 pb-4 flex flex-col gap-3">
-              <a
+              <Link
                 href="/"
                 className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Home
-              </a>
+              </Link>
               <a
                 href="/how-it-works"
                 className="px-4 py-2 text-blue-600 font-semibold bg-blue-50 rounded-lg"
@@ -145,7 +146,7 @@ export default function HowItWorksPage() {
 
           {/* Steps */}
           <div className="space-y-12">
-            {steps.map((step, index) => (
+            {steps.map((step) => (
               <div key={step.number} className="relative flex items-start gap-8">
                 {/* Icon Circle */}
                 <div className="flex-shrink-0 relative z-10">
@@ -209,13 +210,13 @@ export default function HowItWorksPage() {
             <div>
               <h3 className="text-xl font-bold mb-4">DSTI R&D Platform</h3>
               <p className="text-gray-400">
-                Modern, secure, audit-ready application system for South Africa's R&D Tax Incentive Programme.
+                Modern, secure, audit-ready application system for South Africa&apos;s R&D Tax Incentive Programme.
               </p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="/" className="hover:text-white transition">Home</a></li>
+                <li><Link href="/" className="hover:text-white transition">Home</Link></li>
                 <li><a href="/how-it-works" className="hover:text-white transition">How It Works</a></li>
                 <li><a href="/guidelines" className="hover:text-white transition">Guidelines</a></li>
                 <li><a href="/eligibility" className="hover:text-white transition">Check Eligibility</a></li>
