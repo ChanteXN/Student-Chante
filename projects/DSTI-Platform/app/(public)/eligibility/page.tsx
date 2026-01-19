@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, XCircle, AlertCircle, ArrowRight, BookOpen, FileText } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, ArrowRight, BookOpen, FileText, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ type Outcome = "eligible" | "borderline" | "not-eligible";
 export default function EligibilityScreenerPage() {
   const [currentStep, setCurrentStep] = useState<"questions" | "results">("questions");
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const questions: Question[] = [
     {
@@ -152,20 +153,78 @@ export default function EligibilityScreenerPage() {
       {/* Header */}
       <header className="bg-white border-b sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <a href="/" className="text-xl sm:text-2xl font-bold text-blue-600 hover:text-blue-700 transition">
-            DSTI R&D Platform
-          </a>
-          <nav className="flex gap-2 sm:gap-4 lg:gap-6">
-            <a href="/how-it-works" className="hidden sm:block text-gray-700 hover:text-blue-600 transition text-sm lg:text-base">
-              How It Works
+          <div className="flex justify-between items-center">
+            <a href="/" className="text-xl sm:text-2xl font-bold text-blue-600 hover:text-blue-700 transition">
+              DSTI R&D Platform
             </a>
-            <a href="/guidelines" className="hidden sm:block text-gray-700 hover:text-blue-600 transition text-sm lg:text-base">
-              Guidelines
-            </a>
-            <a href="/login">
-              <Button variant="outline" size="sm" className="lg:h-10">Sign In</Button>
-            </a>
-          </nav>
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex gap-6">
+              <a href="/how-it-works" className="text-gray-600 hover:text-blue-600 transition">
+                How It Works
+              </a>
+              <a href="/guidelines" className="text-gray-600 hover:text-blue-600 transition">
+                Guidelines
+              </a>
+              <a href="/login" className="text-gray-600 hover:text-blue-600 transition">
+                Sign In
+              </a>
+              <a href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                Register
+              </a>
+            </nav>
+
+            {/* Mobile Menu Button */}
+            <button
+              className="md:hidden p-2 text-gray-600 hover:text-blue-600 transition"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+              suppressHydrationWarning
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <nav className="md:hidden mt-4 pb-4 flex flex-col gap-3">
+              <a
+                href="/"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Home
+              </a>
+              <a
+                href="/how-it-works"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                How It Works
+              </a>
+              <a
+                href="/guidelines"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Guidelines
+              </a>
+              <a
+                href="/login"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Sign In
+              </a>
+              <a
+                href="/register"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Register
+              </a>
+            </nav>
+          )}
         </div>
       </header>
 

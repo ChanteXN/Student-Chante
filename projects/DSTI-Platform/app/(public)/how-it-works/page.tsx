@@ -1,6 +1,10 @@
-import { CheckCircle2, FileText, Search, Send, UserCheck } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { CheckCircle2, FileText, Search, Send, UserCheck, Menu, X } from "lucide-react";
 
 export default function HowItWorksPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const steps = [
     {
       number: 1,
@@ -45,10 +49,12 @@ export default function HowItWorksPage() {
       <header className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <a href="/" className="text-2xl font-bold text-blue-600">
+            <a href="/" className="text-xl sm:text-2xl font-bold text-blue-600">
               DSTI R&D Platform
             </a>
-            <nav className="flex gap-6">
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex gap-6">
               <a href="/" className="text-gray-600 hover:text-blue-600 transition">
                 Home
               </a>
@@ -61,18 +67,72 @@ export default function HowItWorksPage() {
               <a href="/login" className="text-gray-600 hover:text-blue-600 transition">
                 Sign In
               </a>
+              <a href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                Register
+              </a>
             </nav>
+
+            {/* Mobile Menu Button */}
+            <button
+              className="md:hidden p-2 text-gray-600 hover:text-blue-600 transition"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+              suppressHydrationWarning
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <nav className="md:hidden mt-4 pb-4 flex flex-col gap-3">
+              <a
+                href="/"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Home
+              </a>
+              <a
+                href="/how-it-works"
+                className="px-4 py-2 text-blue-600 font-semibold bg-blue-50 rounded-lg"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                How It Works
+              </a>
+              <a
+                href="/guidelines"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Guidelines
+              </a>
+              <a
+                href="/login"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Sign In
+              </a>
+              <a
+                href="/register"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Register
+              </a>
+            </nav>
+          )}
         </div>
       </header>
 
       {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="text-center mb-12 sm:mb-16">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
             How It Works
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
             Our streamlined process makes applying for the R&D Tax Incentive simple, 
             secure, and guided every step of the way.
           </p>
