@@ -122,7 +122,7 @@ export default function PortalPage() {
             <Button 
               className="h-auto py-4 flex flex-col items-start gap-2" 
               variant="outline"
-              onClick={() => router.push("/portal/projects/new" as any)}
+              onClick={() => router.push("/portal/projects/new")}
             >
               <div className="flex items-center gap-2 w-full">
                 <Plus className="h-5 w-5" />
