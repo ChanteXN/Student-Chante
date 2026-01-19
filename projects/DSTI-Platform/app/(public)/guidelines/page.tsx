@@ -474,7 +474,7 @@ The project must aim to achieve an advance in science or technology, not just ap
           </div>
           {searchQuery && (
             <p className="mt-3 text-sm text-gray-600">
-              {filteredGuidelines.length} result{filteredGuidelines.length !== 1 ? 's' : ''} found for "{searchQuery}"
+              {filteredGuidelines.length} result{filteredGuidelines.length !== 1 ? 's' : ''} found for &quot;{searchQuery}&quot;
             </p>
           )}
         </div>
