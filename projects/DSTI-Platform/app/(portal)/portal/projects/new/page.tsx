@@ -190,7 +190,7 @@ export default function NewProjectPage() {
         title: "Saved",
         description: "Your progress has been saved.",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to save progress.",
