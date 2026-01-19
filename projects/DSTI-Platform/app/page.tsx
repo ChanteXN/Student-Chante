@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ArrowRight, CheckCircle, Shield, Sparkles, FileCheck, Menu, X } from "lucide-react";
 
 export default function HomePage() {
@@ -12,9 +13,9 @@ export default function HomePage() {
       <header className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <a href="/" className="text-xl sm:text-2xl font-bold text-blue-600">
+            <Link href="/" className="text-xl sm:text-2xl font-bold text-blue-600">
               DSTI R&D Platform
-            </a>
+            </Link>
             
             {/* Desktop Navigation */}
             <nav className="hidden md:flex gap-6">
@@ -86,7 +87,7 @@ export default function HomePage() {
             R&D Tax Incentive Platform
           </h1>
           <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto">
-            Modern, Secure, Audit-Ready Application System for South Africa's Section 11D Programme
+            Modern, Secure, Audit-Ready Application System for South Africa&apos;s Section 11D Programme
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -195,13 +196,13 @@ export default function HomePage() {
             <div>
               <h3 className="text-xl font-bold mb-4">DSTI R&D Platform</h3>
               <p className="text-gray-400">
-                Modern, secure, audit-ready application system for South Africa's R&D Tax Incentive Programme.
+                Modern, secure, audit-ready application system for South Africa&apos;s R&D Tax Incentive Programme.
               </p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="/" className="hover:text-white transition">Home</a></li>
+                <li><Link href="/" className="hover:text-white transition">Home</Link></li>
                 <li><a href="/how-it-works" className="hover:text-white transition">How It Works</a></li>
                 <li><a href="/guidelines" className="hover:text-white transition">Guidelines</a></li>
                 <li><a href="/eligibility" className="hover:text-white transition">Check Eligibility</a></li>
