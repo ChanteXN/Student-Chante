@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Search, FileText, BookOpen, AlertCircle, CheckCircle, Clock, X, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +15,7 @@ interface Guideline {
   fullContent: string;
   tags: string[];
   lastUpdated: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 export default function GuidelinesPage() {
@@ -369,15 +370,15 @@ The project must aim to achieve an advance in science or technology, not just ap
       <header className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <a href="/" className="text-xl sm:text-2xl font-bold text-blue-600">
+            <Link href="/" className="text-xl sm:text-2xl font-bold text-blue-600">
               DSTI R&D Platform
-            </a>
+            </Link>
             
             {/* Desktop Navigation */}
             <nav className="hidden md:flex gap-6">
-              <a href="/" className="text-gray-600 hover:text-blue-600 transition">
+              <Link href="/" className="text-gray-600 hover:text-blue-600 transition">
                 Home
-              </a>
+              </Link>
               <a href="/how-it-works" className="text-gray-600 hover:text-blue-600 transition">
                 How It Works
               </a>
@@ -406,13 +407,13 @@ The project must aim to achieve an advance in science or technology, not just ap
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
             <nav className="md:hidden mt-4 pb-4 flex flex-col gap-3">
-              <a
+              <Link
                 href="/"
                 className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Home
-              </a>
+              </Link>
               <a
                 href="/how-it-works"
                 className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
@@ -598,13 +599,13 @@ The project must aim to achieve an advance in science or technology, not just ap
             <div>
               <h3 className="text-xl font-bold mb-4">DSTI R&D Platform</h3>
               <p className="text-gray-400">
-                Modern, secure, audit-ready application system for South Africa's R&D Tax Incentive Programme.
+                Modern, secure, audit-ready application system for South Africa&apos;s R&D Tax Incentive Programme.
               </p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="/" className="hover:text-white transition">Home</a></li>
+                <li><Link href="/" className="hover:text-white transition">Home</Link></li>
                 <li><a href="/how-it-works" className="hover:text-white transition">How It Works</a></li>
                 <li><a href="/guidelines" className="hover:text-white transition">Guidelines</a></li>
                 <li><a href="/eligibility" className="hover:text-white transition">Check Eligibility</a></li>
