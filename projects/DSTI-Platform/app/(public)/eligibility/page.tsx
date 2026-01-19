@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, XCircle, AlertCircle, ArrowRight, BookOpen, FileText, Menu, X } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle, XCircle, AlertCircle, ArrowRight, BookOpen, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -154,9 +155,9 @@ export default function EligibilityScreenerPage() {
       <header className="bg-white border-b sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex justify-between items-center">
-            <a href="/" className="text-xl sm:text-2xl font-bold text-blue-600 hover:text-blue-700 transition">
+            <Link href="/" className="text-xl sm:text-2xl font-bold text-blue-600 hover:text-blue-700 transition">
               DSTI R&D Platform
-            </a>
+            </Link>
             
             {/* Desktop Navigation */}
             <nav className="hidden md:flex gap-6">
@@ -188,13 +189,13 @@ export default function EligibilityScreenerPage() {
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
             <nav className="md:hidden mt-4 pb-4 flex flex-col gap-3">
-              <a
+              <Link
                 href="/"
                 className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Home
-              </a>
+              </Link>
               <a
                 href="/how-it-works"
                 className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
@@ -574,16 +575,16 @@ export default function EligibilityScreenerPage() {
             <div>
               <h3 className="text-xl font-bold mb-4">DSTI R&D Platform</h3>
               <p className="text-gray-400">
-                Modern, secure, audit-ready application system for South Africa's R&D Tax Incentive Programme.
+                Modern, secure, audit-ready application system for South Africa&apos;s R&D Tax Incentive Programme.
               </p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <a href="/" className="hover:text-white transition">
+                  <Link href="/" className="hover:text-white transition">
                     Home
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <a href="/how-it-works" className="hover:text-white transition">

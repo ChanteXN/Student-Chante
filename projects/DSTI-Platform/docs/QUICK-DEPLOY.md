@@ -1,4 +1,4 @@
-# 🚀 Quick Deployment Guide
+#  Quick Deployment Guide
 
 Follow these steps to deploy your DSTI Platform to Vercel in ~15 minutes.
 
@@ -86,7 +86,7 @@ Visit your app: `https://your-app.vercel.app`
 - [ ] Check email for magic link
 - [ ] Click magic link → access portal
 
-**🎉 Done! Your app is live!**
+** Done! Your app is live!**
 
 ---
 
