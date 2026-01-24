@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Edit, CheckCircle, AlertCircle } from "lucide-react";
+import { Loader2, Edit, CheckCircle, AlertCircle, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface ProjectSection {
@@ -149,9 +149,18 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
               Review your R&D tax incentive application before submission
             </p>
           </div>
-          <Badge variant={completeness === 100 ? "default" : "secondary"} className="text-lg px-4 py-2">
-            {completeness}% Complete
-          </Badge>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/portal/projects/${resolvedParams.id}/evidence`)}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Evidence Vault
+            </Button>
+            <Badge variant={completeness === 100 ? "default" : "secondary"} className="text-lg px-4 py-2">
+              {completeness}% Complete
+            </Badge>
+          </div>
         </div>
 
         {completeness < 100 && (

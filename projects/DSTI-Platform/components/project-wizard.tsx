@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, ChevronRight, Save, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Save, Check, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface WizardStep {
@@ -36,9 +37,10 @@ export function ProjectWizard({
   children,
   title = "Project Builder",
   description = "Complete each step to build your R&D tax incentive application",
-  projectId: _projectId = null,
+  projectId = null,
   onReview,
 }: ProjectWizardProps) {
+  const router = useRouter();
   const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "idle">("idle");
   const progress = ((currentStep + 1) / steps.length) * 100;
 
@@ -76,9 +78,20 @@ export function ProjectWizard({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">{title}</h1>
-        <p className="text-muted-foreground mt-1">{description}</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">{title}</h1>
+          <p className="text-muted-foreground mt-1">{description}</p>
+        </div>
+        {projectId && (
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/portal/projects/${projectId}/evidence`)}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Evidence Vault
+          </Button>
+        )}
       </div>
 
       {/* Progress Bar */}

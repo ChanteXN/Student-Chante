@@ -44,4 +44,8 @@ prisma/migrations
 *.db
 *.db-journal
 
+# Uploads
+public/uploads/evidence/*
+!public/uploads/evidence/.gitkeep
+
 /lib/generated/prisma
