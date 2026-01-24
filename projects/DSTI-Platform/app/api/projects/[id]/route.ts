@@ -95,3 +95,48 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    // Verify project exists and get its status
+    const project = await prisma.project.findUnique({
+      where: { id },
+      select: { status: true, organisationId: true },
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    // Only allow deletion of draft projects
+    if (project.status !== "DRAFT") {
+      return NextResponse.json(
+        { error: "Only draft projects can be deleted" },
+        { status: 403 }
+      );
+    }
+
+    // Delete project (sections will cascade delete automatically)
+    await prisma.project.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    return NextResponse.json(
+      { error: "Failed to delete project" },
+      { status: 500 }
+    );
+  }
+}
