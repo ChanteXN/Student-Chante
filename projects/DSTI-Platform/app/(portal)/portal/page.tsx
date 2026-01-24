@@ -5,15 +5,48 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, FolderOpen, Clock, Bell, Plus, ArrowRight, CheckCircle } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+
+interface ProjectStats {
+  drafts: number;
+  submitted: number;
+  underReview: number;
+  total: number;
+  active: number;
+}
+
+interface RecentProject {
+  id: string;
+  title: string;
+  status: string;
+  updatedAt: string;
+}
 
 export default function PortalPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [stats, setStats] = useState<ProjectStats | null>(null);
+  const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
+    }
+    
+    // Fetch project stats and recent projects
+    if (status === "authenticated") {
+      // Fetch stats
+      fetch("/api/projects/stats")
+        .then((res) => res.json())
+        .then((data) => setStats(data))
+        .catch((error) => console.error("Error fetching stats:", error));
+      
+      // Fetch recent projects
+      fetch("/api/projects?limit=5")
+        .then((res) => res.json())
+        .then((data) => setRecentProjects(data.slice(0, 5)))
+        .catch((error) => console.error("Error fetching projects:", error));
     }
   }, [status, router]);
 
@@ -64,9 +97,9 @@ export default function PortalPage() {
             <FileText className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">0</div>
+            <div className="text-2xl font-bold text-blue-600">{stats?.active ?? 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              No active submissions
+              {stats?.active === 0 ? "No active submissions" : "Currently being processed"}
             </p>
           </CardContent>
         </Card>
@@ -77,9 +110,9 @@ export default function PortalPage() {
             <FolderOpen className="h-4 w-4 text-gray-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">0</div>
+            <div className="text-2xl font-bold text-gray-600">{stats?.drafts ?? 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Awaiting submission
+              {stats?.drafts === 0 ? "No drafts" : "Awaiting submission"}
             </p>
           </CardContent>
         </Card>
@@ -90,22 +123,22 @@ export default function PortalPage() {
             <Clock className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">0</div>
+            <div className="text-2xl font-bold text-orange-600">{stats?.underReview ?? 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Pending evaluation
+              {stats?.underReview === 0 ? "None in review" : "Pending evaluation"}
             </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Notifications</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
             <Bell className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">0</div>
+            <div className="text-2xl font-bold text-purple-600">{stats?.total ?? 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              No new updates
+              {stats?.total === 0 ? "Get started" : "All time"}
             </p>
           </CardContent>
         </Card>
@@ -133,7 +166,11 @@ export default function PortalPage() {
               </span>
             </Button>
 
-            <Button className="h-auto py-4 flex flex-col items-start gap-2" variant="outline">
+            <Button 
+              className="h-auto py-4 flex flex-col items-start gap-2" 
+              variant="outline"
+              onClick={() => router.push("/portal/projects")}
+            >
               <div className="flex items-center gap-2 w-full">
                 <FolderOpen className="h-5 w-5" />
                 <span className="font-semibold">View Projects</span>
@@ -159,18 +196,63 @@ export default function PortalPage() {
       {/* Recent Activity / Getting Started */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your latest actions and updates</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>Your latest projects and updates</CardDescription>
+            </div>
+            {recentProjects.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={() => router.push("/portal/projects")}>
+                View All
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <FileText className="h-12 w-12 text-gray-400 mb-3" />
-              <p className="text-sm text-gray-600 font-medium">No recent activity</p>
-              <p className="text-xs text-gray-500 mt-1">
-                Start by creating your first application
-              </p>
-            </div>
+            {recentProjects.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <FileText className="h-12 w-12 text-gray-400 mb-3" />
+                <p className="text-sm text-gray-600 font-medium">No recent activity</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Start by creating your first application
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {recentProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                    onClick={() => {
+                      if (project.status === "DRAFT") {
+                        router.push(`/portal/projects/new?id=${project.id}`);
+                      } else {
+                        router.push(`/portal/projects/${project.id}/review`);
+                      }
+                    }}
+                  >
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{project.title || "Untitled Project"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Updated {formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {project.status === "DRAFT" && (
+                        <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">Draft</span>
+                      )}
+                      {project.status === "SUBMITTED" && (
+                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">Submitted</span>
+                      )}
+                      {project.status === "UNDER_REVIEW" && (
+                        <span className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded">Under Review</span>
+                      )}
+                      <ArrowRight className="h-4 w-4 text-gray-400" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
