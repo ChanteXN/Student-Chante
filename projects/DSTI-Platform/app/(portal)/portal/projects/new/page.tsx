@@ -28,6 +28,21 @@ const WIZARD_STEPS: WizardStep[] = [
     title: "R&D Uncertainty",
     description: "Describe the technical or scientific challenges",
   },
+  {
+    id: "methodology",
+    title: "Methodology & Innovation",
+    description: "Explain your research approach and innovation",
+  },
+  {
+    id: "team",
+    title: "Team & Expertise",
+    description: "Describe your R&D team and their qualifications",
+  },
+  {
+    id: "expenditure",
+    title: "Budget & Expenditure",
+    description: "Provide details about your R&D costs",
+  },
 ];
 
 interface ProjectBasicsData {
@@ -43,23 +58,53 @@ interface UncertaintyData {
   objectives: string;
 }
 
+interface MethodologyData {
+  researchApproach: string;
+  innovationDescription: string;
+  challengesOvercome: string;
+  experimentsPlanned: string;
+}
+
+interface TeamData {
+  teamSize: string;
+  keyPersonnel: string;
+  qualifications: string;
+  rolesResponsibilities: string;
+}
+
+interface ExpenditureData {
+  totalBudget: string;
+  rdCostsBreakdown: string;
+  expenditureTimeline: string;
+}
+
 export default function NewProjectPage() {
   const router = useRouter();
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const urlProjectId = searchParams.get('id');
+  const urlStep = searchParams.get('step');
+  
   const { data: session } = useSession();
   const { toast } = useToast();
 
-  const [currentStep, setCurrentStep] = useState(0);
-  const [projectId, setProjectId] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState(urlStep ? parseInt(urlStep) : 0);
+  const [projectId, setProjectId] = useState<string | null>(urlProjectId);
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Track last saved data to prevent unnecessary saves
   const lastSavedData = useRef<{
     basics: ProjectBasicsData;
     uncertainty: UncertaintyData;
+    methodology: MethodologyData;
+    team: TeamData;
+    expenditure: ExpenditureData;
   }>({
     basics: { title: "", sector: "", startDate: "", endDate: "", location: "" },
     uncertainty: { uncertainty: "", objectives: "" },
+    methodology: { researchApproach: "", innovationDescription: "", challengesOvercome: "", experimentsPlanned: "" },
+    team: { teamSize: "", keyPersonnel: "", qualifications: "", rolesResponsibilities: "" },
+    expenditure: { totalBudget: "", rdCostsBreakdown: "", expenditureTimeline: "" },
   });
 
   // Track if user has made changes
@@ -79,33 +124,129 @@ export default function NewProjectPage() {
     objectives: "",
   });
 
-  // Create project on mount
+  const [methodologyData, setMethodologyData] = useState<MethodologyData>({
+    researchApproach: "",
+    innovationDescription: "",
+    challengesOvercome: "",
+    experimentsPlanned: "",
+  });
+
+  const [teamData, setTeamData] = useState<TeamData>({
+    teamSize: "",
+    keyPersonnel: "",
+    qualifications: "",
+    rolesResponsibilities: "",
+  });
+
+  const [expenditureData, setExpenditureData] = useState<ExpenditureData>({
+    totalBudget: "",
+    rdCostsBreakdown: "",
+    expenditureTimeline: "",
+  });
+
+  // Create or load project on mount
   useEffect(() => {
-    const createProject = async () => {
+    const initializeProject = async () => {
       if (!session?.user?.email) return;
 
       setIsLoading(true);
       try {
-        const response = await fetch("/api/projects", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title: "Untitled Project",
-          }),
-        });
+        // If we have a project ID in URL, load that project
+        if (urlProjectId) {
+          const response = await fetch(`/api/projects/${urlProjectId}`);
+          
+          // If project doesn't exist, clear URL and create new one
+          if (!response.ok) {
+            console.warn(`Project ${urlProjectId} not found, creating new project`);
+            window.history.replaceState({}, '', '/portal/projects/new');
+            // Create new project instead
+            const newResponse = await fetch("/api/projects", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                title: "Untitled Project",
+              }),
+            });
+            if (!newResponse.ok) throw new Error("Failed to create project");
+            const newProject = await newResponse.json();
+            setProjectId(newProject.id);
+            
+            // Update URL to include project ID
+            window.history.replaceState({}, '', `/portal/projects/new?id=${newProject.id}`);
+            
+            setIsLoading(false);
+            toast({
+              title: "Project created",
+              description: "Your new project is ready to be filled out.",
+            });
+            return;
+          }
 
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || "Failed to create project");
+          const project = await response.json();
+          setProjectId(project.id);
+          
+          // Load existing data into form
+          if (project.title) setBasicsData(prev => ({ ...prev, title: project.title }));
+          if (project.sector) setBasicsData(prev => ({ ...prev, sector: project.sector }));
+          if (project.startDate) setBasicsData(prev => ({ ...prev, startDate: project.startDate }));
+          if (project.endDate) setBasicsData(prev => ({ ...prev, endDate: project.endDate }));
+          if (project.location) setBasicsData(prev => ({ ...prev, location: project.location }));
+
+          // Load section data
+          project.sections?.forEach((section: { sectionKey: string; sectionData: Record<string, string> }) => {
+            if (section.sectionKey === 'basics') {
+              setBasicsData(prev => ({ ...prev, ...section.sectionData }));
+              lastSavedData.current.basics = section.sectionData as unknown as ProjectBasicsData;
+            } else if (section.sectionKey === 'uncertainty') {
+              setUncertaintyData(section.sectionData as unknown as UncertaintyData);
+              lastSavedData.current.uncertainty = section.sectionData as unknown as UncertaintyData;
+            } else if (section.sectionKey === 'methodology') {
+              setMethodologyData(section.sectionData as unknown as MethodologyData);
+              lastSavedData.current.methodology = section.sectionData as unknown as MethodologyData;
+            } else if (section.sectionKey === 'team') {
+              setTeamData(section.sectionData as unknown as TeamData);
+              lastSavedData.current.team = section.sectionData as unknown as TeamData;
+            } else if (section.sectionKey === 'expenditure') {
+              setExpenditureData(section.sectionData as unknown as ExpenditureData);
+              lastSavedData.current.expenditure = section.sectionData as unknown as ExpenditureData;
+            }
+          });
+
+          toast({
+            title: "Project loaded",
+            description: "Your existing project has been loaded.",
+          });
+        } else {
+          // Create new project only if no ID in URL
+          const response = await fetch("/api/projects", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: "Untitled Project",
+            }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Failed to create project");
+          }
+
+          const project = await response.json();
+          setProjectId(project.id);
+          
+          // Update URL to include project ID so it persists on page refresh
+          window.history.replaceState({}, '', `/portal/projects/new?id=${project.id}`);
+          
+          toast({
+            title: "Project created",
+            description: "Your new application has been created.",
+          });
         }
-
-        const project = await response.json();
-        setProjectId(project.id);
       } catch (error) {
-        console.error("Project creation error:", error);
+        console.error("Project initialization error:", error);
         toast({
           title: "Error",
-          description: error instanceof Error ? error.message : "Failed to create project. Please ensure you have an organisation set up.",
+          description: error instanceof Error ? error.message : "Failed to initialize project. Please ensure you have an organisation set up.",
           variant: "destructive",
         });
         router.push("/portal");
@@ -114,81 +255,115 @@ export default function NewProjectPage() {
       }
     };
 
-    createProject();
-  }, [session, router, toast]);
+    initializeProject();
+  }, [session, router, toast, urlProjectId]);
 
-  // Auto-save function
+  // Auto-save function - saves ALL sections with changes
   const saveProgress = useCallback(async () => {
     if (!projectId || !hasUnsavedChanges.current) return;
 
     setIsSaving(true);
     try {
-      let sectionData = {};
-      let sectionKey = "";
-      let projectUpdates = {};
+      const sectionsToSave = [];
+      
+      // Build project-level updates from basics data
+      const projectUpdates: Record<string, string> = {};
+      if (basicsData.title) projectUpdates.title = basicsData.title;
+      if (basicsData.sector) projectUpdates.sector = basicsData.sector;
+      if (basicsData.startDate) projectUpdates.startDate = basicsData.startDate;
+      if (basicsData.endDate) projectUpdates.endDate = basicsData.endDate;
+      if (basicsData.location) projectUpdates.location = basicsData.location;
 
-      if (currentStep === 0) {
-        // Only save if there's actual data
-        if (!basicsData.title && !basicsData.sector && !basicsData.startDate && 
-            !basicsData.endDate && !basicsData.location) {
-          setIsSaving(false);
-          return;
-        }
-
-        // Check if data actually changed
+      // Check basics data
+      if (basicsData.title || basicsData.sector || basicsData.startDate || 
+          basicsData.endDate || basicsData.location) {
         const dataChanged = JSON.stringify(basicsData) !== JSON.stringify(lastSavedData.current.basics);
-        if (!dataChanged) {
-          setIsSaving(false);
-          return;
+        if (dataChanged) {
+          sectionsToSave.push({
+            sectionKey: "basics",
+            sectionData: basicsData,
+          });
+          lastSavedData.current.basics = { ...basicsData };
         }
-
-        sectionKey = "basics";
-        sectionData = basicsData;
-        projectUpdates = {
-          ...(basicsData.title && { title: basicsData.title }),
-          ...(basicsData.sector && { sector: basicsData.sector }),
-          ...(basicsData.startDate && { startDate: basicsData.startDate }),
-          ...(basicsData.endDate && { endDate: basicsData.endDate }),
-          ...(basicsData.location && { location: basicsData.location }),
-        };
-
-        lastSavedData.current.basics = { ...basicsData };
-      } else if (currentStep === 1) {
-        // Only save if there's actual data
-        if (!uncertaintyData.uncertainty && !uncertaintyData.objectives) {
-          setIsSaving(false);
-          return;
-        }
-
-        // Check if data actually changed
-        const dataChanged = JSON.stringify(uncertaintyData) !== JSON.stringify(lastSavedData.current.uncertainty);
-        if (!dataChanged) {
-          setIsSaving(false);
-          return;
-        }
-
-        sectionKey = "uncertainty";
-        sectionData = uncertaintyData;
-
-        lastSavedData.current.uncertainty = { ...uncertaintyData };
       }
 
-      const response = await fetch(`/api/projects/${projectId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...projectUpdates,
-          sectionKey,
-          sectionData,
-        }),
-      });
+      // Check uncertainty data
+      if (uncertaintyData.uncertainty || uncertaintyData.objectives) {
+        const dataChanged = JSON.stringify(uncertaintyData) !== JSON.stringify(lastSavedData.current.uncertainty);
+        if (dataChanged) {
+          sectionsToSave.push({
+            sectionKey: "uncertainty",
+            sectionData: uncertaintyData,
+          });
+          lastSavedData.current.uncertainty = { ...uncertaintyData };
+        }
+      }
 
-      if (!response.ok) throw new Error("Failed to save");
+      // Check methodology data
+      if (methodologyData.researchApproach || methodologyData.innovationDescription || 
+          methodologyData.challengesOvercome || methodologyData.experimentsPlanned) {
+        const dataChanged = JSON.stringify(methodologyData) !== JSON.stringify(lastSavedData.current.methodology);
+        if (dataChanged) {
+          sectionsToSave.push({
+            sectionKey: "methodology",
+            sectionData: methodologyData,
+          });
+          lastSavedData.current.methodology = { ...methodologyData };
+        }
+      }
+
+      // Check team data
+      if (teamData.teamSize || teamData.keyPersonnel || 
+          teamData.qualifications || teamData.rolesResponsibilities) {
+        const dataChanged = JSON.stringify(teamData) !== JSON.stringify(lastSavedData.current.team);
+        if (dataChanged) {
+          sectionsToSave.push({
+            sectionKey: "team",
+            sectionData: teamData,
+          });
+          lastSavedData.current.team = { ...teamData };
+        }
+      }
+
+      // Check expenditure data
+      if (expenditureData.totalBudget || expenditureData.rdCostsBreakdown || 
+          expenditureData.expenditureTimeline) {
+        const dataChanged = JSON.stringify(expenditureData) !== JSON.stringify(lastSavedData.current.expenditure);
+        if (dataChanged) {
+          sectionsToSave.push({
+            sectionKey: "expenditure",
+            sectionData: expenditureData,
+          });
+          lastSavedData.current.expenditure = { ...expenditureData };
+        }
+      }
+
+      // If no sections changed, don't save
+      if (sectionsToSave.length === 0) {
+        setIsSaving(false);
+        return;
+      }
+
+      // Save all changed sections
+      for (const section of sectionsToSave) {
+        const response = await fetch(`/api/projects/${projectId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            // Always send project updates (they'll be ignored if section isn't basics)
+            ...projectUpdates,
+            sectionKey: section.sectionKey,
+            sectionData: section.sectionData,
+          }),
+        });
+
+        if (!response.ok) throw new Error("Failed to save");
+      }
 
       hasUnsavedChanges.current = false;
       toast({
         title: "Saved",
-        description: "Your progress has been saved.",
+        description: `${sectionsToSave.length} section(s) saved successfully.`,
       });
     } catch {
       toast({
@@ -199,7 +374,7 @@ export default function NewProjectPage() {
     } finally {
       setIsSaving(false);
     }
-  }, [projectId, currentStep, basicsData, uncertaintyData, toast]);
+  }, [projectId, basicsData, uncertaintyData, methodologyData, teamData, expenditureData, toast]);
 
   // Auto-save on data change (debounced)
   useEffect(() => {
@@ -214,8 +389,14 @@ export default function NewProjectPage() {
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [basicsData.title, basicsData.sector, basicsData.startDate, basicsData.endDate, basicsData.location, 
-      uncertaintyData.uncertainty, uncertaintyData.objectives, projectId]);
+  }, [
+    basicsData.title, basicsData.sector, basicsData.startDate, basicsData.endDate, basicsData.location, 
+    uncertaintyData.uncertainty, uncertaintyData.objectives,
+    methodologyData.researchApproach, methodologyData.innovationDescription, methodologyData.challengesOvercome, methodologyData.experimentsPlanned,
+    teamData.teamSize, teamData.keyPersonnel, teamData.qualifications, teamData.rolesResponsibilities,
+    expenditureData.totalBudget, expenditureData.rdCostsBreakdown, expenditureData.expenditureTimeline,
+    projectId
+  ]);
 
   if (isLoading || !projectId) {
     return (
@@ -228,6 +409,12 @@ export default function NewProjectPage() {
     );
   }
 
+  const handleReview = () => {
+    if (projectId) {
+      router.push(`/portal/projects/${projectId}/review` as never);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
       <ProjectWizard
@@ -236,6 +423,8 @@ export default function NewProjectPage() {
         onStepChange={setCurrentStep}
         onSave={saveProgress}
         isSaving={isSaving}
+        projectId={projectId}
+        onReview={handleReview}
       >
         {/* Step 1: Project Basics */}
         {currentStep === 0 && (
@@ -354,6 +543,222 @@ export default function NewProjectPage() {
                   setUncertaintyData({
                     ...uncertaintyData,
                     objectives: e.target.value,
+                  })
+                }
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Methodology & Innovation */}
+        {currentStep === 2 && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="researchApproach">Research Approach *</Label>
+              <p className="text-sm text-muted-foreground">
+                Describe the systematic approach you took to resolve the technical uncertainty.
+              </p>
+              <Textarea
+                id="researchApproach"
+                placeholder="e.g., We employed an iterative machine learning development approach with controlled experiments..."
+                rows={6}
+                value={methodologyData.researchApproach}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setMethodologyData({
+                    ...methodologyData,
+                    researchApproach: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="innovationDescription">Innovation Description *</Label>
+              <p className="text-sm text-muted-foreground">
+                What makes your approach novel or innovative? How does it differ from existing solutions?
+              </p>
+              <Textarea
+                id="innovationDescription"
+                placeholder="e.g., Our innovation lies in the development of a hybrid neural network architecture that combines..."
+                rows={6}
+                value={methodologyData.innovationDescription}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setMethodologyData({
+                    ...methodologyData,
+                    innovationDescription: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="challengesOvercome">Challenges Overcome *</Label>
+              <p className="text-sm text-muted-foreground">
+                What specific technical challenges did you encounter and how did you resolve them?
+              </p>
+              <Textarea
+                id="challengesOvercome"
+                placeholder="e.g., Challenge 1: Data quality issues - Resolved by implementing advanced data cleaning algorithms&#10;Challenge 2: Model overfitting - Resolved by developing custom regularization techniques"
+                rows={6}
+                value={methodologyData.challengesOvercome}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setMethodologyData({
+                    ...methodologyData,
+                    challengesOvercome: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="experimentsPlanned">Experiments Planned/Conducted *</Label>
+              <p className="text-sm text-muted-foreground">
+                Describe the experiments or trials you conducted to test your hypotheses.
+              </p>
+              <Textarea
+                id="experimentsPlanned"
+                placeholder="e.g., 1. Baseline model testing with existing algorithms&#10;2. Temperature sensitivity experiments (0-100°C range)&#10;3. A/B testing of different model architectures&#10;4. Real-world deployment pilot study"
+                rows={6}
+                value={methodologyData.experimentsPlanned}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setMethodologyData({
+                    ...methodologyData,
+                    experimentsPlanned: e.target.value,
+                  })
+                }
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Team & Expertise */}
+        {currentStep === 3 && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="teamSize">Team Size *</Label>
+              <p className="text-sm text-muted-foreground">
+                How many people were directly involved in the R&D activities?
+              </p>
+              <Input
+                id="teamSize"
+                placeholder="e.g., 5 core team members, 2 part-time consultants"
+                value={teamData.teamSize}
+                onChange={(e) =>
+                  setTeamData({ ...teamData, teamSize: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="keyPersonnel">Key Personnel *</Label>
+              <p className="text-sm text-muted-foreground">
+                List the key R&D team members and their roles (names optional for MVP).
+              </p>
+              <Textarea
+                id="keyPersonnel"
+                placeholder="e.g., Lead Data Scientist - 10 years experience in ML&#10;Senior Software Engineer - AI systems specialist&#10;Research Engineer - PhD in Computer Science&#10;Project Manager - R&D coordination"
+                rows={6}
+                value={teamData.keyPersonnel}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setTeamData({
+                    ...teamData,
+                    keyPersonnel: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="qualifications">Relevant Qualifications *</Label>
+              <p className="text-sm text-muted-foreground">
+                Describe the technical qualifications and expertise that enabled this R&D work.
+              </p>
+              <Textarea
+                id="qualifications"
+                placeholder="e.g., Team qualifications include:&#10;- 3 team members with advanced degrees (MSc/PhD) in AI/ML&#10;- Combined 40+ years of industry experience&#10;- Publications in peer-reviewed journals&#10;- Previous successful R&D projects in predictive analytics"
+                rows={6}
+                value={teamData.qualifications}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setTeamData({
+                    ...teamData,
+                    qualifications: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rolesResponsibilities">Roles & Responsibilities *</Label>
+              <p className="text-sm text-muted-foreground">
+                Define how R&D responsibilities were distributed across the team.
+              </p>
+              <Textarea
+                id="rolesResponsibilities"
+                placeholder="e.g., Data Scientists: Model development and testing&#10;Engineers: System integration and deployment&#10;Research Lead: Hypothesis formulation and validation&#10;Project Manager: Coordination and documentation"
+                rows={6}
+                value={teamData.rolesResponsibilities}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setTeamData({
+                    ...teamData,
+                    rolesResponsibilities: e.target.value,
+                  })
+                }
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Step 5: Budget & Expenditure */}
+        {currentStep === 4 && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="totalBudget">Total R&D Budget *</Label>
+              <p className="text-sm text-muted-foreground">
+                What is the total budget allocated for this R&D project? (ZAR)
+              </p>
+              <Input
+                id="totalBudget"
+                placeholder="e.g., R 2,500,000"
+                value={expenditureData.totalBudget}
+                onChange={(e) =>
+                  setExpenditureData({ ...expenditureData, totalBudget: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rdCostsBreakdown">R&D Costs Breakdown *</Label>
+              <p className="text-sm text-muted-foreground">
+                Provide a breakdown of major cost categories (personnel, equipment, materials, etc.).
+              </p>
+              <Textarea
+                id="rdCostsBreakdown"
+                placeholder="e.g., Personnel Costs: R 1,500,000 (60%)&#10;Equipment & Software: R 500,000 (20%)&#10;Cloud Computing & Infrastructure: R 300,000 (12%)&#10;Materials & Supplies: R 150,000 (6%)&#10;Other R&D Costs: R 50,000 (2%)"
+                rows={8}
+                value={expenditureData.rdCostsBreakdown}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setExpenditureData({
+                    ...expenditureData,
+                    rdCostsBreakdown: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expenditureTimeline">Expenditure Timeline *</Label>
+              <p className="text-sm text-muted-foreground">
+                Describe when costs will be incurred over the project period.
+              </p>
+              <Textarea
+                id="expenditureTimeline"
+                placeholder="e.g., Q1 2026: R 800,000 (initial setup, personnel onboarding)&#10;Q2 2026: R 600,000 (development phase, equipment procurement)&#10;Q3 2026: R 700,000 (testing, experimentation)&#10;Q4 2026: R 400,000 (refinement, documentation)"
+                rows={6}
+                value={expenditureData.expenditureTimeline}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setExpenditureData({
+                    ...expenditureData,
+                    expenditureTimeline: e.target.value,
                   })
                 }
               />

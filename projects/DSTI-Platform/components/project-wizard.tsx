@@ -23,6 +23,8 @@ interface ProjectWizardProps {
   children: ReactNode;
   title?: string;
   description?: string;
+  projectId?: string | null;
+  onReview?: () => void;
 }
 
 export function ProjectWizard({
@@ -34,6 +36,8 @@ export function ProjectWizard({
   children,
   title = "Project Builder",
   description = "Complete each step to build your R&D tax incentive application",
+  projectId = null,
+  onReview,
 }: ProjectWizardProps) {
   const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "idle">("idle");
   const progress = ((currentStep + 1) / steps.length) * 100;
@@ -45,8 +49,9 @@ export function ProjectWizard({
   };
 
   const handleReview = () => {
-    // TODO: Navigate to review page or submit
-    alert('Review functionality will be implemented in the next sprint phase');
+    if (onReview) {
+      onReview();
+    }
   };
 
   const handlePrevious = () => {
