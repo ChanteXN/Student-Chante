@@ -36,7 +36,7 @@ export function ProjectWizard({
   children,
   title = "Project Builder",
   description = "Complete each step to build your R&D tax incentive application",
-  projectId = null,
+  projectId: _projectId = null,
   onReview,
 }: ProjectWizardProps) {
   const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "idle">("idle");
