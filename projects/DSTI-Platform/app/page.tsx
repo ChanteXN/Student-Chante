@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CheckCircle, Shield, Building2, FileCheck, Menu, X, Users, TrendingUp, Award, Clock } from "lucide-react";
+import { ArrowRight, CheckCircle, Shield, Building2, Menu, X, Users, TrendingUp, Award, Clock } from "lucide-react";
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

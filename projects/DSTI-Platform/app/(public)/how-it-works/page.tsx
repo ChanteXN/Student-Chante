@@ -157,7 +157,7 @@ export default function HowItWorksPage() {
 
           {/* Steps */}
           <div className="space-y-12">
-            {steps.map((step, index) => (
+            {steps.map((step) => (
               <div key={step.number} className="relative flex items-start gap-8">
                 {/* Icon Circle */}
                 <div className="flex-shrink-0 relative z-10">
