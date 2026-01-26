@@ -184,7 +184,7 @@ export default function SubmissionConfirmationPage() {
             <li className="flex items-start">
               <span className="font-semibold mr-2">3.</span>
               <span>
-                Once approved, you'll receive your R&D approval certificate and tax benefits confirmation
+                Once approved, you&apos;ll receive your R&D approval certificate and tax benefits confirmation
               </span>
             </li>
             <li className="flex items-start">
