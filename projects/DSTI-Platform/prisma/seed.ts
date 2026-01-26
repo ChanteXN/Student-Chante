@@ -179,15 +179,14 @@ async function main() {
 
   console.log(' Created audit event');
 
-  console.log('\n Seed completed successfully!');
-  console.log('\n Summary:');
+  console.log('\n🎉 Seed completed successfully!');
+  console.log('\n📊 Summary:');
   console.log(`   - Organisation: ${organisation.name}`);
   console.log(`   - Applicant: ${applicant.email}`);
   console.log(`   - Admin: ${admin.email}`);
   console.log(`   - Reviewer: ${reviewer.email}`);
   console.log(`   - Consultant: ${consultant.email}`);
   console.log(`   - Project: ${project.title}`);
-  console.log(`   - Evidence Categories: ${categories.length}`);
 }
 
 main()
