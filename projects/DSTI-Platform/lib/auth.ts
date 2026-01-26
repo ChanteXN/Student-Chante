@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import Resend from "next-auth/providers/resend";
 import { authConfig } from "@/auth.config";
+import { getMagicLinkEmailHtml, getMagicLinkEmailText } from "@/lib/email-template";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -11,6 +12,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Resend({
       apiKey: process.env.RESEND_API_KEY,
       from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+      sendVerificationRequest: async ({ identifier: email, url, provider }) => {
+        const { host } = new URL(url);
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${provider.apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: provider.from,
+            to: email,
+            subject: `Sign in to DSTI R&D Platform`,
+            html: getMagicLinkEmailHtml(url),
+            text: getMagicLinkEmailText(url),
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to send verification email");
+        }
+      },
     }),
   ],
   callbacks: {
