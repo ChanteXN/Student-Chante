@@ -49,6 +49,10 @@ export async function PATCH(
     const body = await request.json();
     const { sectionKey, sectionData, ...projectData } = body;
 
+    console.log("PATCH request for project:", id);
+    console.log("Project data to update:", projectData);
+    console.log("Section key:", sectionKey);
+
     // Update project fields
     if (Object.keys(projectData).length > 0) {
       await prisma.project.update({
@@ -134,8 +138,12 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting project:", error);
+    
+    // Provide more specific error message
+    const errorMessage = error instanceof Error ? error.message : "Failed to delete project";
+    
     return NextResponse.json(
-      { error: "Failed to delete project" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

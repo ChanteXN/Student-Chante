@@ -83,7 +83,10 @@ export default function ProjectsPage() {
         method: "DELETE",
       });
 
-      if (!response.ok) throw new Error("Failed to delete project");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete project");
+      }
 
       setProjects(projects.filter((p) => p.id !== projectId));
       toast({
@@ -94,7 +97,7 @@ export default function ProjectsPage() {
       console.error("Error deleting project:", error);
       toast({
         title: "Error",
-        description: "Failed to delete project.",
+        description: error instanceof Error ? error.message : "Failed to delete project.",
         variant: "destructive",
       });
     }
@@ -121,7 +124,10 @@ export default function ProjectsPage() {
             Manage your R&D tax incentive applications
           </p>
         </div>
-        <Button onClick={() => router.push("/portal/projects/new")}>
+        <Button onClick={() => {
+          sessionStorage.removeItem('currentProjectId');
+          router.push("/portal/projects/new");
+        }}>
           <Plus className="h-4 w-4 mr-2" />
           New Application
         </Button>
