@@ -117,13 +117,9 @@ export function calculateReadinessScore(project: ProjectData): ReadinessResult {
   // 3. QUALITY HEURISTICS (30 points max)
   // ============================================================================
 
-  let qualityChecks = 0;
-  const totalChecks = 6;
-
   // Check 1: Project title is meaningful (not empty, > 10 chars)
   if (project.title && project.title.length >= 10) {
     qualityScore += 5;
-    qualityChecks++;
   } else {
     fixes.push({
       id: "weak-title",
@@ -142,7 +138,6 @@ export function calculateReadinessScore(project: ProjectData): ReadinessResult {
   
   if (uncertaintyText && uncertaintyText.length >= 100) {
     qualityScore += 5;
-    qualityChecks++;
   } else if (uncertaintySection) {
     fixes.push({
       id: "weak-uncertainty",
@@ -161,7 +156,6 @@ export function calculateReadinessScore(project: ProjectData): ReadinessResult {
   
   if (methodologyText && methodologyText.length >= 100) {
     qualityScore += 5;
-    qualityChecks++;
   } else if (methodologySection) {
     fixes.push({
       id: "weak-methodology",
@@ -180,7 +174,6 @@ export function calculateReadinessScore(project: ProjectData): ReadinessResult {
   
   if (Array.isArray(teamData) && teamData.length >= 2) {
     qualityScore += 5;
-    qualityChecks++;
   } else if (teamSection) {
     fixes.push({
       id: "incomplete-team",
@@ -196,7 +189,6 @@ export function calculateReadinessScore(project: ProjectData): ReadinessResult {
   // Check 5: Project has defined timeline
   if (project.startDate && project.endDate) {
     qualityScore += 5;
-    qualityChecks++;
   } else {
     fixes.push({
       id: "missing-timeline",
@@ -215,7 +207,6 @@ export function calculateReadinessScore(project: ProjectData): ReadinessResult {
   
   if (expenditureData && Object.keys(expenditureData).length >= 3) {
     qualityScore += 5;
-    qualityChecks++;
   } else if (expenditureSection) {
     fixes.push({
       id: "incomplete-expenditure",
