@@ -13,7 +13,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       apiKey: process.env.RESEND_API_KEY,
       from: process.env.EMAIL_FROM || "onboarding@resend.dev",
       sendVerificationRequest: async ({ identifier: email, url, provider }) => {
-        const { host } = new URL(url);
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
