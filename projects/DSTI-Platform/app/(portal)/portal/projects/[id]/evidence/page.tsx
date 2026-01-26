@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,14 +69,7 @@ export default function EvidenceVaultPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  useEffect(() => {
-    if (projectId) {
-      fetchProject();
-      fetchEvidenceFiles();
-    }
-  }, [projectId]);
-
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${projectId}`);
       if (!response.ok) throw new Error("Failed to fetch project");
@@ -90,9 +83,9 @@ export default function EvidenceVaultPage() {
         variant: "destructive",
       });
     }
-  };
+  }, [projectId, toast]);
 
-  const fetchEvidenceFiles = async () => {
+  const fetchEvidenceFiles = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/projects/${projectId}/evidence`);
@@ -109,7 +102,14 @@ export default function EvidenceVaultPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId, toast]);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProject();
+      fetchEvidenceFiles();
+    }
+  }, [projectId, fetchProject, fetchEvidenceFiles]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -213,10 +213,6 @@ export default function EvidenceVaultPage() {
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
-  };
-
-  const getCategoryLabel = (category: string): string => {
-    return EVIDENCE_CATEGORIES.find((c) => c.value === category)?.label || category;
   };
 
   const getCategoryBadgeVariant = (category: string) => {

@@ -110,7 +110,7 @@ export async function POST(
     const evidenceFile = await prisma.evidenceFile.create({
       data: {
         projectId,
-        category: category as any,
+        category: category as never,
         fileName: file.name,
         fileSize: file.size,
         filePath: `/uploads/evidence/${uniqueFileName}`,
