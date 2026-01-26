@@ -21,58 +21,7 @@ enum ProjectStatus {
 }
 
 async function main() {
-  console.log(' Starting seed...');
-
-  // Creates Evidence Categories
-  console.log('Creating evidence categories...');
-  const categories = await Promise.all([
-    prisma.evidenceCategory.upsert({
-      where: { name: 'R&D Plan' },
-      update: {},
-      create: {
-        name: 'R&D Plan',
-        description: 'Detailed R&D project plan and objectives',
-        isRequired: true,
-      },
-    }),
-    prisma.evidenceCategory.upsert({
-      where: { name: 'Literature Review' },
-      update: {},
-      create: {
-        name: 'Literature Review',
-        description: 'Patent searches, academic papers, market research',
-        isRequired: true,
-      },
-    }),
-    prisma.evidenceCategory.upsert({
-      where: { name: 'Experiment Documentation' },
-      update: {},
-      create: {
-        name: 'Experiment Documentation',
-        description: 'Lab notes, test results, prototypes',
-        isRequired: false,
-      },
-    }),
-    prisma.evidenceCategory.upsert({
-      where: { name: 'Timesheets' },
-      update: {},
-      create: {
-        name: 'Timesheets',
-        description: 'Staff time allocation to R&D activities',
-        isRequired: true,
-      },
-    }),
-    prisma.evidenceCategory.upsert({
-      where: { name: 'Financial Records' },
-      update: {},
-      create: {
-        name: 'Financial Records',
-        description: 'Expenditure documentation, invoices, receipts',
-        isRequired: true,
-      },
-    }),
-  ]);
-  console.log(` Created ${categories.length} evidence categories`);
+  console.log('🌱 Starting seed...');
 
   // Create Organisation
   console.log('Creating demo organisation...');
