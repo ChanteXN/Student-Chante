@@ -77,10 +77,10 @@ export default function PortalPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Welcome back, {displayName}
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 mt-1 text-base">
             Manage your DSTI funding applications and projects
           </p>
         </div>
@@ -95,52 +95,60 @@ export default function PortalPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-200 hover:scale-105">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Applications</CardTitle>
-            <FileText className="h-4 w-4 text-blue-600" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats?.active ?? 0}</div>
+            <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">{stats?.active ?? 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {stats?.active === 0 ? "No active submissions" : "Currently being processed"}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-xl transition-all duration-300 border-2 hover:border-gray-300 hover:scale-105">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Draft Projects</CardTitle>
-            <FolderOpen className="h-4 w-4 text-gray-600" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center shadow-md">
+              <FolderOpen className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">{stats?.drafts ?? 0}</div>
+            <div className="text-3xl font-bold bg-gradient-to-r from-gray-600 to-gray-700 bg-clip-text text-transparent">{stats?.drafts ?? 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {stats?.drafts === 0 ? "No drafts" : "Awaiting submission"}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-xl transition-all duration-300 border-2 hover:border-orange-200 hover:scale-105">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Under Review</CardTitle>
-            <Clock className="h-4 w-4 text-orange-600" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-md">
+              <Clock className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats?.underReview ?? 0}</div>
+            <div className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">{stats?.underReview ?? 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {stats?.underReview === 0 ? "None in review" : "Pending evaluation"}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-xl transition-all duration-300 border-2 hover:border-purple-200 hover:scale-105">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-            <Bell className="h-4 w-4 text-purple-600" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-md">
+              <Bell className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{stats?.total ?? 0}</div>
+            <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">{stats?.total ?? 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {stats?.total === 0 ? "Get started" : "All time"}
             </p>
@@ -149,20 +157,22 @@ export default function PortalPage() {
       </div>
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="border-2 hover:shadow-xl transition-shadow">
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Get started with your application process</CardDescription>
+          <CardTitle className="text-xl">Quick Actions</CardTitle>
+          <CardDescription className="text-base">Get started with your application process</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Button 
-              className="h-auto py-4 flex flex-col items-start gap-2" 
+              className="h-auto py-4 flex flex-col items-start gap-2 hover:border-blue-300 hover:shadow-lg transition-all" 
               variant="outline"
               onClick={() => router.push("/portal/projects/new")}
             >
               <div className="flex items-center gap-2 w-full">
-                <Plus className="h-5 w-5" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                  <Plus className="h-4 w-4 text-white" />
+                </div>
                 <span className="font-semibold">New Application</span>
               </div>
               <span className="text-xs text-muted-foreground text-left">
@@ -171,12 +181,14 @@ export default function PortalPage() {
             </Button>
 
             <Button 
-              className="h-auto py-4 flex flex-col items-start gap-2" 
+              className="h-auto py-4 flex flex-col items-start gap-2 hover:border-purple-300 hover:shadow-lg transition-all" 
               variant="outline"
               onClick={() => router.push("/portal/projects")}
             >
               <div className="flex items-center gap-2 w-full">
-                <FolderOpen className="h-5 w-5" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                  <FolderOpen className="h-4 w-4 text-white" />
+                </div>
                 <span className="font-semibold">View Projects</span>
               </div>
               <span className="text-xs text-muted-foreground text-left">
@@ -184,9 +196,11 @@ export default function PortalPage() {
               </span>
             </Button>
 
-            <Button className="h-auto py-4 flex flex-col items-start gap-2" variant="outline">
+            <Button className="h-auto py-4 flex flex-col items-start gap-2 hover:border-green-300 hover:shadow-lg transition-all" variant="outline">
               <div className="flex items-center gap-2 w-full">
-                <FileText className="h-5 w-5" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                  <FileText className="h-4 w-4 text-white" />
+                </div>
                 <span className="font-semibold">Guidelines</span>
               </div>
               <span className="text-xs text-muted-foreground text-left">
@@ -199,11 +213,11 @@ export default function PortalPage() {
 
       {/* Recent Activity / Getting Started */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="border-2 hover:shadow-xl transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your latest projects and updates</CardDescription>
+              <CardTitle className="text-xl">Recent Activity</CardTitle>
+              <CardDescription className="text-base">Your latest projects and updates</CardDescription>
             </div>
             {recentProjects.length > 0 && (
               <Button variant="ghost" size="sm" onClick={() => router.push("/portal/projects")}>
@@ -226,7 +240,7 @@ export default function PortalPage() {
                 {recentProjects.map((project) => (
                   <div
                     key={project.id}
-                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                    className="flex items-center justify-between p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 rounded-lg cursor-pointer transition-all border border-transparent hover:border-blue-200 hover:shadow-md"
                     onClick={() => {
                       if (project.status === "DRAFT") {
                         router.push(`/portal/projects/new?id=${project.id}`);
@@ -260,10 +274,10 @@ export default function PortalPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-2 hover:shadow-xl transition-shadow">
           <CardHeader>
-            <CardTitle>Getting Started</CardTitle>
-            <CardDescription>Complete these steps to begin</CardDescription>
+            <CardTitle className="text-xl">Getting Started</CardTitle>
+            <CardDescription className="text-base">Complete these steps to begin</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

@@ -123,26 +123,30 @@ export default function ProjectsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">My Projects</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold">My Projects</h1>
+          <p className="text-muted-foreground mt-1 text-base">
             Manage your R&D tax incentive applications
           </p>
         </div>
-        <Button onClick={() => {
-          sessionStorage.removeItem('currentProjectId');
-          router.push("/portal/projects/new");
-        }}>
+        <Button 
+          onClick={() => {
+            sessionStorage.removeItem('currentProjectId');
+            router.push("/portal/projects/new");
+          }}
+          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all"
+        >
           <Plus className="h-4 w-4 mr-2" />
           New Application
         </Button>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 flex-wrap">
         <Button
           variant={filter === "all" ? "default" : "outline"}
           size="sm"
           onClick={() => setFilter("all")}
+          className={filter === "all" ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" : "hover:border-blue-300 hover:bg-blue-50 transition-all"}
         >
           All ({projects.length})
         </Button>
@@ -150,6 +154,7 @@ export default function ProjectsPage() {
           variant={filter === "DRAFT" ? "default" : "outline"}
           size="sm"
           onClick={() => setFilter("DRAFT")}
+          className={filter === "DRAFT" ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" : "hover:border-gray-300 hover:bg-gray-50 transition-all"}
         >
           Drafts ({projects.filter((p) => p.status === "DRAFT").length})
         </Button>
@@ -157,6 +162,7 @@ export default function ProjectsPage() {
           variant={filter === "SUBMITTED" ? "default" : "outline"}
           size="sm"
           onClick={() => setFilter("SUBMITTED")}
+          className={filter === "SUBMITTED" ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" : "hover:border-green-300 hover:bg-green-50 transition-all"}
         >
           Submitted ({projects.filter((p) => p.status === "SUBMITTED").length})
         </Button>
@@ -164,6 +170,7 @@ export default function ProjectsPage() {
           variant={filter === "UNDER_REVIEW" ? "default" : "outline"}
           size="sm"
           onClick={() => setFilter("UNDER_REVIEW")}
+          className={filter === "UNDER_REVIEW" ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" : "hover:border-orange-300 hover:bg-orange-50 transition-all"}
         >
           Under Review ({projects.filter((p) => p.status === "UNDER_REVIEW").length})
         </Button>
@@ -171,16 +178,21 @@ export default function ProjectsPage() {
 
       {/* Projects List */}
       {filteredProjects.length === 0 ? (
-        <Card>
+        <Card className="border-2 shadow-lg">
           <CardContent className="flex flex-col items-center justify-center py-16">
-            <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center mb-4">
+              <FileText className="h-10 w-10 text-blue-600" />
+            </div>
             <h3 className="text-lg font-semibold mb-2">No projects found</h3>
             <p className="text-sm text-muted-foreground mb-6 text-center max-w-md">
               {filter === "all"
                 ? "You haven't created any applications yet. Start by creating your first R&D tax incentive application."
                 : `No projects with status "${filter}"`}
             </p>
-            <Button onClick={() => router.push("/portal/projects/new")}>
+            <Button 
+              onClick={() => router.push("/portal/projects/new")}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Application
             </Button>
@@ -189,15 +201,15 @@ export default function ProjectsPage() {
       ) : (
         <div className="grid gap-4">
           {filteredProjects.map((project) => (
-            <Card key={project.id} className="hover:shadow-md transition-shadow">
+            <Card key={project.id} className="hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-200 hover:scale-[1.01]">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <CardTitle className="text-xl">{project.title || "Untitled Project"}</CardTitle>
+                      <CardTitle className="text-lg sm:text-xl">{project.title || "Untitled Project"}</CardTitle>
                       {getStatusBadge(project.status)}
                     </div>
-                    <CardDescription className="flex items-center gap-4">
+                    <CardDescription className="flex items-center gap-4 text-sm">
                       {project.sector && (
                         <span className="flex items-center gap-1">
                           <span className="font-medium">Sector:</span> {project.sector}
@@ -222,6 +234,7 @@ export default function ProjectsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => router.push(`/portal/projects/new?id=${project.id}`)}
+                        className="hover:bg-blue-50 hover:border-blue-300 transition-all"
                       >
                         <Edit className="h-4 w-4 mr-1" />
                         Edit
@@ -231,6 +244,7 @@ export default function ProjectsPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => router.push(`/portal/projects/${project.id}/review`)}
+                      className="hover:bg-purple-50 hover:border-purple-300 transition-all"
                     >
                       <Eye className="h-4 w-4 mr-1" />
                       View
@@ -240,6 +254,7 @@ export default function ProjectsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(project.id)}
+                        className="hover:bg-red-50 hover:border-red-300 transition-all"
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
                       </Button>

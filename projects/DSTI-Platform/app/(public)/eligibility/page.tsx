@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckCircle, XCircle, AlertCircle, ArrowRight, BookOpen, Menu, X } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, ArrowRight, BookOpen, Menu, X, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -150,28 +150,33 @@ export default function EligibilityScreenerPage() {
   const config = outcomeConfig[outcome];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <header className="bg-white/90 backdrop-blur-md border-b shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/" className="text-xl sm:text-2xl font-bold text-blue-600 hover:text-blue-700 transition">
-              DSTI R&D Platform
+            <Link href="/" className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                DSTI R&D Platform
+              </span>
             </Link>
             
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex gap-6">
-              <a href="/how-it-works" className="text-gray-600 hover:text-blue-600 transition">
+            <nav className="hidden md:flex items-center gap-6">
+              <a href="/how-it-works" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
                 How It Works
               </a>
-              <a href="/guidelines" className="text-gray-600 hover:text-blue-600 transition">
+              <a href="/guidelines" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
                 Guidelines
               </a>
-              <a href="/login" className="text-gray-600 hover:text-blue-600 transition">
+              <a href="/login" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
                 Sign In
               </a>
-              <a href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                Register
+              <a href="/register" className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg font-medium">
+                Get Started
               </a>
             </nav>
 
@@ -188,7 +193,7 @@ export default function EligibilityScreenerPage() {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <nav className="md:hidden mt-4 pb-4 flex flex-col gap-3">
+            <nav className="md:hidden mt-4 pb-4 flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
               <Link
                 href="/"
                 className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
@@ -219,10 +224,10 @@ export default function EligibilityScreenerPage() {
               </a>
               <a
                 href="/register"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center"
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition text-center"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Register
+                Get Started
               </a>
             </nav>
           )}
@@ -234,31 +239,40 @@ export default function EligibilityScreenerPage() {
           <>
             {/* Title Section */}
             <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">Eligibility Screener</h1>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-6">
+                <Sparkles className="w-4 h-4" />
+                <span>Quick Eligibility Check</span>
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Eligibility Screener
+                </span>
+              </h1>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
                 Answer 7 quick questions to check if your project qualifies for the R&D Tax Incentive (Section 11D).
               </p>
-              <div className="mt-6 flex items-center justify-center gap-2">
-                <Badge variant="outline">Takes 2-3 minutes</Badge>
-                <Badge variant="outline">Instant results</Badge>
+              <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
+                <Badge variant="outline" className="px-4 py-1.5">⏱️ Takes 2-3 minutes</Badge>
+                <Badge variant="outline" className="px-4 py-1.5">⚡ Instant results</Badge>
+                <Badge variant="outline" className="px-4 py-1.5">🎯 Free assessment</Badge>
               </div>
             </div>
 
             {/* Questions */}
             <div className="space-y-6">
               {questions.map((q, index) => (
-                <Card key={q.id} className="border-2 hover:border-blue-200 transition">
+                <Card key={q.id} className="border-2 hover:border-blue-300 transition-all shadow-md hover:shadow-lg">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-white flex items-center justify-center font-bold shadow-md">
                             {index + 1}
                           </div>
-                          {q.required && <Badge variant="destructive">Required</Badge>}
+                          {q.required && <Badge variant="destructive" className="shadow-sm">Required</Badge>}
                         </div>
-                        <CardTitle className="text-xl">{q.question}</CardTitle>
-                        <CardDescription className="text-base mt-2">{q.description}</CardDescription>
+                        <CardTitle className="text-xl mb-2">{q.question}</CardTitle>
+                        <CardDescription className="text-base leading-relaxed">{q.description}</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
@@ -266,7 +280,7 @@ export default function EligibilityScreenerPage() {
                     <div className="flex gap-3">
                       <Button
                         variant={answers[q.id] === "yes" ? "default" : "outline"}
-                        className="flex-1"
+                        className={`flex-1 ${answers[q.id] === "yes" ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" : ""}`}
                         onClick={() => handleAnswer(q.id, "yes")}
                       >
                         <CheckCircle className="w-4 h-4 mr-2" />
@@ -274,7 +288,7 @@ export default function EligibilityScreenerPage() {
                       </Button>
                       <Button
                         variant={answers[q.id] === "no" ? "default" : "outline"}
-                        className="flex-1"
+                        className={`flex-1 ${answers[q.id] === "no" ? "bg-red-600 hover:bg-red-700" : ""}`}
                         onClick={() => handleAnswer(q.id, "no")}
                       >
                         <XCircle className="w-4 h-4 mr-2" />
@@ -282,7 +296,7 @@ export default function EligibilityScreenerPage() {
                       </Button>
                       <Button
                         variant={answers[q.id] === "unsure" ? "default" : "outline"}
-                        className="flex-1"
+                        className={`flex-1 ${answers[q.id] === "unsure" ? "bg-orange-600 hover:bg-orange-700" : ""}`}
                         onClick={() => handleAnswer(q.id, "unsure")}
                       >
                         <AlertCircle className="w-4 h-4 mr-2" />
@@ -300,7 +314,7 @@ export default function EligibilityScreenerPage() {
                 size="lg"
                 onClick={handleSubmit}
                 disabled={!allQuestionsAnswered}
-                className="px-12 py-6 text-lg"
+                className="px-12 py-6 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-xl hover:shadow-2xl transition-all"
               >
                 See Results
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -317,56 +331,67 @@ export default function EligibilityScreenerPage() {
           <>
             {/* Results Section */}
             <div className="text-center mb-8">
-              <Button variant="ghost" onClick={() => setCurrentStep("questions")} className="mb-4">
+              <Button 
+                variant="ghost" 
+                onClick={() => setCurrentStep("questions")} 
+                className="mb-6 hover:bg-blue-50"
+              >
                 ← Back to Questions
               </Button>
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Your Results</h1>
-              <p className="text-gray-600">Eligibility Assessment Complete</p>
+              <h1 className="text-3xl sm:text-5xl font-bold text-gray-900 mb-4">
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Your Results
+                </span>
+              </h1>
+              <p className="text-xl text-gray-600">Eligibility Assessment Complete</p>
             </div>
 
             {/* Outcome Card */}
-            <Card className={`border-2 ${config.borderColor} ${config.bgColor} mb-8`}>
+            <Card className={`border-2 ${config.borderColor} ${config.bgColor} mb-8 shadow-xl`}>
               <CardHeader>
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <div className={`w-16 h-16 rounded-full ${config.bgColor} flex items-center justify-center flex-shrink-0`}>
-                    <config.icon className={`w-8 h-8 ${config.color}`} />
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  <div className={`w-20 h-20 rounded-full ${config.bgColor} border-2 ${config.borderColor} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                    <config.icon className={`w-10 h-10 ${config.color}`} />
                   </div>
-                  <div className="text-center sm:text-left">
-                    <CardTitle className={`text-2xl sm:text-3xl ${config.color}`}>{config.title}</CardTitle>
-                    <CardDescription className="text-base sm:text-lg mt-2">{config.description}</CardDescription>
+                  <div className="text-center sm:text-left flex-1">
+                    <CardTitle className={`text-2xl sm:text-4xl ${config.color} mb-3`}>{config.title}</CardTitle>
+                    <CardDescription className="text-base sm:text-lg leading-relaxed">{config.description}</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="bg-white rounded-lg p-4 border">
-                  <p className="text-sm text-gray-600 mb-2">Qualification Score</p>
+                <div className="bg-white rounded-xl p-6 border-2 shadow-inner">
+                  <p className="text-sm font-semibold text-gray-700 mb-3">Qualification Score</p>
                   <div className="flex items-center gap-4">
-                    <div className="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
+                    <div className="flex-1 bg-gray-200 rounded-full h-6 overflow-hidden shadow-inner">
                       <div
-                        className={`h-full transition-all duration-500 ${
+                        className={`h-full transition-all duration-700 ${
                           outcome === "eligible"
-                            ? "bg-green-500"
+                            ? "bg-gradient-to-r from-green-500 to-green-600"
                             : outcome === "borderline"
-                            ? "bg-orange-500"
-                            : "bg-red-500"
+                            ? "bg-gradient-to-r from-orange-500 to-orange-600"
+                            : "bg-gradient-to-r from-red-500 to-red-600"
                         }`}
                         style={{ width: `${score}%` }}
                       />
                     </div>
-                    <span className="text-2xl font-bold text-gray-900">{score}%</span>
+                    <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{score}%</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Eligibility Checklist */}
-            <Card className="mb-8">
+            <Card className="mb-8 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-2xl">Eligibility Checklist</CardTitle>
-                <CardDescription>Review the key requirements for the R&D Tax Incentive</CardDescription>
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <CheckCircle className="w-6 h-6 text-blue-600" />
+                  Eligibility Checklist
+                </CardTitle>
+                <CardDescription className="text-base">Review the key requirements for the R&D Tax Incentive</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {questions.map((q) => {
                     const answer = answers[q.id];
                     const Icon =
@@ -377,15 +402,21 @@ export default function EligibilityScreenerPage() {
                         : answer === "no"
                         ? "text-red-600"
                         : "text-orange-600";
+                    const bgClass =
+                      answer === "yes"
+                        ? "bg-green-50 border-green-200"
+                        : answer === "no"
+                        ? "bg-red-50 border-red-200"
+                        : "bg-orange-50 border-orange-200";
 
                     return (
-                      <div key={q.id} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                      <div key={q.id} className={`flex items-start gap-3 p-4 rounded-xl border-2 ${bgClass} transition-all`}>
                         <Icon className={`w-6 h-6 ${colorClass} flex-shrink-0 mt-0.5`} />
                         <div className="flex-1">
                           <p className="font-semibold text-gray-900">{q.question}</p>
-                          <p className="text-sm text-gray-600 mt-1">{q.description}</p>
+                          <p className="text-sm text-gray-600 mt-1 leading-relaxed">{q.description}</p>
                         </div>
-                        {q.required && <Badge variant="outline">Required</Badge>}
+                        {q.required && <Badge variant="outline" className="shadow-sm">Required</Badge>}
                       </div>
                     );
                   })}
@@ -394,56 +425,61 @@ export default function EligibilityScreenerPage() {
             </Card>
 
             {/* Next Steps */}
-            <Card className="bg-gradient-to-br from-blue-600 to-purple-600 text-white border-0">
-              <CardHeader>
-                <CardTitle className="text-2xl text-white">Next Steps</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <Card className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 text-white border-0 shadow-2xl overflow-hidden">
+              <div className="absolute inset-0 bg-grid-white/10 bg-[size:20px_20px]"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500 rounded-full blur-3xl opacity-20"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full blur-3xl opacity-20"></div>
+              
+              <div className="relative z-10">
+                <CardHeader>
+                  <CardTitle className="text-3xl text-white">Next Steps</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                 {outcome === "eligible" && (
                   <>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 font-bold">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-lg">
                         1
                       </div>
                       <div>
-                        <p className="font-semibold text-lg">Review Detailed Guidelines</p>
-                        <p className="text-blue-100">
+                        <p className="font-semibold text-xl">Review Detailed Guidelines</p>
+                        <p className="text-blue-100 leading-relaxed">
                           Learn more about evidence requirements and application best practices.
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 font-bold">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-lg">
                         2
                       </div>
                       <div>
-                        <p className="font-semibold text-lg">Create Your Account</p>
-                        <p className="text-blue-100">
+                        <p className="font-semibold text-xl">Create Your Account</p>
+                        <p className="text-blue-100 leading-relaxed">
                           Set up your secure profile and begin the guided application process.
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 font-bold">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-lg">
                         3
                       </div>
                       <div>
-                        <p className="font-semibold text-lg">Complete Project Builder</p>
-                        <p className="text-blue-100">
+                        <p className="font-semibold text-xl">Complete Project Builder</p>
+                        <p className="text-blue-100 leading-relaxed">
                           Use our AI-assisted wizard to build a strong, compliant application.
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                    <div className="flex flex-col sm:flex-row gap-4 mt-8">
                       <a href="/register" className="flex-1">
-                        <Button size="lg" variant="secondary" className="w-full">
+                        <Button size="lg" variant="secondary" className="w-full text-lg shadow-xl hover:shadow-2xl">
                           Start Application
                           <ArrowRight className="w-5 h-5 ml-2" />
                         </Button>
                       </a>
                       <a href="/guidelines" className="flex-1">
-                        <Button size="lg" variant="outline" className="w-full bg-white/10 text-white border-white/30 hover:bg-white/20">
+                        <Button size="lg" variant="outline" className="w-full bg-white/10 text-white border-2 border-white/30 hover:bg-white/20 text-lg">
                           <BookOpen className="w-5 h-5 mr-2" />
                           Read Guidelines
                         </Button>
@@ -454,49 +490,49 @@ export default function EligibilityScreenerPage() {
 
                 {outcome === "borderline" && (
                   <>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 font-bold">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-lg">
                         1
                       </div>
                       <div>
-                        <p className="font-semibold text-lg">Study the Guidelines Carefully</p>
-                        <p className="text-blue-100">
+                        <p className="font-semibold text-xl">Study the Guidelines Carefully</p>
+                        <p className="text-blue-100 leading-relaxed">
                           Understand what makes a strong R&D project and how to improve your approach.
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 font-bold">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-lg">
                         2
                       </div>
                       <div>
-                        <p className="font-semibold text-lg">Strengthen Your Project Documentation</p>
-                        <p className="text-blue-100">
+                        <p className="font-semibold text-xl">Strengthen Your Project Documentation</p>
+                        <p className="text-blue-100 leading-relaxed">
                           Focus on clearly defining uncertainty, systematic investigation, and advancement.
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 font-bold">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-lg">
                         3
                       </div>
                       <div>
-                        <p className="font-semibold text-lg">Use Our AI Co-Pilot for Guidance</p>
-                        <p className="text-blue-100">
+                        <p className="font-semibold text-xl">Use Our AI Co-Pilot for Guidance</p>
+                        <p className="text-blue-100 leading-relaxed">
                           Get personalized suggestions to improve your application quality.
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                    <div className="flex flex-col sm:flex-row gap-4 mt-8">
                       <a href="/guidelines" className="flex-1">
-                        <Button size="lg" variant="secondary" className="w-full">
+                        <Button size="lg" variant="secondary" className="w-full text-lg shadow-xl hover:shadow-2xl">
                           <BookOpen className="w-5 h-5 mr-2" />
                           Read Guidelines
                         </Button>
                       </a>
                       <a href="/register" className="flex-1">
-                        <Button size="lg" variant="outline" className="w-full bg-white/10 text-white border-white/30 hover:bg-white/20">
+                        <Button size="lg" variant="outline" className="w-full bg-white/10 text-white border-2 border-white/30 hover:bg-white/20 text-lg">
                           Start Application
                           <ArrowRight className="w-5 h-5 ml-2" />
                         </Button>
@@ -507,43 +543,43 @@ export default function EligibilityScreenerPage() {
 
                 {outcome === "not-eligible" && (
                   <>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 font-bold">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-lg">
                         1
                       </div>
                       <div>
-                        <p className="font-semibold text-lg">Review Core Requirements</p>
-                        <p className="text-blue-100">
+                        <p className="font-semibold text-xl">Review Core Requirements</p>
+                        <p className="text-blue-100 leading-relaxed">
                           Make sure your project meets all mandatory criteria (SA registration, uncertainty, etc.).
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 font-bold">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-lg">
                         2
                       </div>
                       <div>
-                        <p className="font-semibold text-lg">Explore Guidelines & Examples</p>
-                        <p className="text-blue-100">
+                        <p className="font-semibold text-xl">Explore Guidelines & Examples</p>
+                        <p className="text-blue-100 leading-relaxed">
                           Learn what qualifies as R&D and see examples of successful applications.
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 font-bold">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-lg">
                         3
                       </div>
                       <div>
-                        <p className="font-semibold text-lg">Re-assess After Adjustments</p>
-                        <p className="text-blue-100">
+                        <p className="font-semibold text-xl">Re-assess After Adjustments</p>
+                        <p className="text-blue-100 leading-relaxed">
                           If you make changes to your project approach, retake this screener.
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                    <div className="flex flex-col sm:flex-row gap-4 mt-8">
                       <a href="/guidelines" className="flex-1">
-                        <Button size="lg" variant="secondary" className="w-full">
+                        <Button size="lg" variant="secondary" className="w-full text-lg shadow-xl hover:shadow-2xl">
                           <BookOpen className="w-5 h-5 mr-2" />
                           Read Guidelines
                         </Button>
@@ -551,7 +587,7 @@ export default function EligibilityScreenerPage() {
                       <Button
                         size="lg"
                         variant="outline"
-                        className="flex-1 bg-white/10 text-white border-white/30 hover:bg-white/20"
+                        className="flex-1 bg-white/10 text-white border-2 border-white/30 hover:bg-white/20 text-lg"
                         onClick={() => {
                           setAnswers({});
                           setCurrentStep("questions");
@@ -563,6 +599,7 @@ export default function EligibilityScreenerPage() {
                   </>
                 )}
               </CardContent>
+              </div>
             </Card>
           </>
         )}

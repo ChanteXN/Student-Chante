@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, FileText, BookOpen, AlertCircle, CheckCircle, Clock, X, Menu } from "lucide-react";
+import { Search, FileText, BookOpen, AlertCircle, CheckCircle, Clock, X, Menu, Building2, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -365,37 +365,42 @@ The project must aim to achieve an advance in science or technology, not just ap
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="bg-white border-b">
+      <header className="bg-white/90 backdrop-blur-md border-b shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/" className="text-xl sm:text-2xl font-bold text-blue-600">
-              DSTI R&D Platform
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                <Building2 className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                DSTI R&D Platform
+              </span>
             </Link>
             
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex gap-6">
-              <Link href="/" className="text-gray-600 hover:text-blue-600 transition">
+            <nav className="hidden md:flex items-center gap-6">
+              <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
                 Home
               </Link>
-              <a href="/how-it-works" className="text-gray-600 hover:text-blue-600 transition">
+              <a href="/how-it-works" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
                 How It Works
               </a>
               <a href="/guidelines" className="text-blue-600 font-semibold">
                 Guidelines
               </a>
-              <a href="/login" className="text-gray-600 hover:text-blue-600 transition">
+              <a href="/login" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
                 Sign In
               </a>
-              <a href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              <a href="/register" className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold">
                 Register
               </a>
             </nav>
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 text-gray-600 hover:text-blue-600 transition"
+              className="md:hidden p-2 text-gray-600 hover:text-blue-600 transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
               suppressHydrationWarning
@@ -406,17 +411,17 @@ The project must aim to achieve an advance in science or technology, not just ap
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <nav className="md:hidden mt-4 pb-4 flex flex-col gap-3">
+            <nav className="md:hidden mt-4 pb-4 flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
               <Link
                 href="/"
-                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Home
               </Link>
               <a
                 href="/how-it-works"
-                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 How It Works
@@ -430,14 +435,14 @@ The project must aim to achieve an advance in science or technology, not just ap
               </a>
               <a
                 href="/login"
-                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                className="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Sign In
               </a>
               <a
                 href="/register"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center"
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all text-center font-semibold"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Register
@@ -448,12 +453,18 @@ The project must aim to achieve an advance in science or technology, not just ap
       </header>
 
       {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
         <div className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Guidelines Hub
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full font-medium mb-4 shadow-sm text-sm">
+            <BookOpen className="w-4 h-4" />
+            <span>Comprehensive Knowledge Base</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Guidelines Hub
+            </span>
           </h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Searchable knowledge base to help you understand R&D Tax Incentive requirements, 
             best practices, and compliance standards.
           </p>
@@ -461,19 +472,19 @@ The project must aim to achieve an advance in science or technology, not just ap
 
         {/* Search Bar */}
         <div className="max-w-2xl mx-auto mb-12">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-blue-600 transition-colors" />
             <Input
               type="text"
               placeholder="Search guidelines, topics, or keywords..."
               value={searchQuery}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-6 text-lg rounded-xl shadow-lg border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+              className="pl-12 pr-4 py-6 text-lg rounded-xl shadow-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
               suppressHydrationWarning
             />
           </div>
           {searchQuery && (
-            <p className="mt-3 text-sm text-gray-600">
+            <p className="mt-3 text-sm text-gray-600 font-medium">
               {filteredGuidelines.length} result{filteredGuidelines.length !== 1 ? 's' : ''} found for &quot;{searchQuery}&quot;
             </p>
           )}
@@ -484,31 +495,39 @@ The project must aim to achieve an advance in science or technology, not just ap
           {filteredGuidelines.map((guide) => (
             <Card 
               key={guide.id} 
-              className="hover:shadow-xl transition cursor-pointer"
+              className="hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 cursor-pointer border-2 border-gray-100 hover:border-blue-200"
               onClick={() => setSelectedGuideline(guide)}
             >
               <CardHeader>
-                <div className="flex items-start justify-between mb-2">
+                <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                      <guide.icon className="w-5 h-5 text-blue-600" />
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center shadow-md">
+                      <guide.icon className="w-6 h-6 text-blue-600" />
                     </div>
-                    <Badge variant="outline">{guide.category}</Badge>
+                    <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">{guide.category}</Badge>
                   </div>
                 </div>
-                <CardTitle className="text-xl">{guide.title}</CardTitle>
-                <CardDescription className="text-base">{guide.description}</CardDescription>
+                <CardTitle className="text-xl font-bold">{guide.title}</CardTitle>
+                <CardDescription className="text-base leading-relaxed">{guide.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-2 mb-3">
+                <div className="flex flex-wrap gap-2 mb-4">
                   {guide.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
+                    <Badge key={tag} variant="secondary" className="text-xs bg-gray-100 hover:bg-gray-200 transition-colors">
                       {tag}
                     </Badge>
                   ))}
                 </div>
-                <p className="text-xs text-gray-500">Last updated: {guide.lastUpdated}</p>
-                <p className="text-sm text-blue-600 mt-2 font-medium">Click to read more →</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-gray-500 flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {guide.lastUpdated}
+                  </p>
+                  <p className="text-sm text-blue-600 font-semibold flex items-center gap-1">
+                    Read more
+                    <ArrowRight className="w-4 h-4" />
+                  </p>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -523,42 +542,56 @@ The project must aim to achieve an advance in science or technology, not just ap
         )}
 
         {/* AI Assistant CTA */}
-        <div className="mt-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-xl p-12 text-white text-center">
-          <h2 className="text-3xl font-bold mb-4">Need Help Understanding the Guidelines?</h2>
-          <p className="text-xl mb-8 text-blue-100">
-            Our AI Co-Pilot can answer your questions and guide you through the application process.
-          </p>
-          <a
-            href="/portal"
-            className="inline-block px-8 py-4 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition text-lg font-semibold shadow-lg"
-          >
-            Start Your Application
-          </a>
+        <div className="mt-20 relative bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 rounded-3xl shadow-2xl p-12 sm:p-16 text-white overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute inset-0 bg-grid-white/10 bg-[size:20px_20px]"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500 rounded-full blur-3xl opacity-20"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full blur-3xl opacity-20"></div>
+          
+          <div className="relative z-10 text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm text-white rounded-full font-medium mb-4 text-sm">
+              <CheckCircle className="w-4 h-4" />
+              <span>AI-Powered Assistance</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+              Need Help Understanding the Guidelines?
+            </h2>
+            <p className="text-base sm:text-lg text-blue-100 mb-8 max-w-2xl mx-auto leading-relaxed">
+              Our AI Co-Pilot can answer your questions and guide you through the application process.
+            </p>
+            <a
+              href="/register"
+              className="group inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl hover:bg-blue-50 transition-all text-base font-semibold shadow-xl hover:shadow-2xl hover:scale-105 duration-300"
+            >
+              Start Your Application
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </a>
+          </div>
         </div>
       </div>
 
       {/* Modal for Full Guideline Content */}
       {selectedGuideline && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedGuideline(null)}>
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white border-b px-8 py-6 flex justify-between items-start">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200" onClick={() => setSelectedGuideline(null)}>
+          <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border-2 border-gray-100 animate-in slide-in-from-bottom-4 duration-300" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 flex justify-between items-start">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <selectedGuideline.icon className="w-6 h-6 text-blue-600" />
+                <div className="w-14 h-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                  <selectedGuideline.icon className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{selectedGuideline.title}</h2>
-                  <Badge variant="outline" className="mt-2">{selectedGuideline.category}</Badge>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white">{selectedGuideline.title}</h2>
+                  <Badge variant="outline" className="mt-2 bg-white/20 border-white/30 text-white backdrop-blur-sm">{selectedGuideline.category}</Badge>
                 </div>
               </div>
               <button 
                 onClick={() => setSelectedGuideline(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition"
+                className="p-2 hover:bg-white/20 rounded-xl transition-colors backdrop-blur-sm"
               >
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6 text-white" />
               </button>
             </div>
-            <div className="px-8 py-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <div className="px-8 py-6 overflow-y-auto max-h-[calc(90vh-140px)]">
               <div className="prose prose-blue max-w-none">
                 <div dangerouslySetInnerHTML={{ 
                   __html: selectedGuideline.fullContent
@@ -579,13 +612,16 @@ The project must aim to achieve an advance in science or technology, not just ap
                     .replace(/([^>])$/gm, '$1</p>')
                 }} />
               </div>
-              <div className="mt-8 pt-6 border-t flex items-center justify-between">
+              <div className="mt-8 pt-6 border-t-2 border-gray-200 flex items-center justify-between">
                 <div className="flex flex-wrap gap-2">
                   {selectedGuideline.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary">{tag}</Badge>
+                    <Badge key={tag} variant="secondary" className="bg-blue-100 text-blue-700">{tag}</Badge>
                   ))}
                 </div>
-                <p className="text-sm text-gray-500">Last updated: {selectedGuideline.lastUpdated}</p>
+                <p className="text-sm text-gray-500 flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  {selectedGuideline.lastUpdated}
+                </p>
               </div>
             </div>
           </div>
@@ -593,29 +629,34 @@ The project must aim to achieve an advance in science or technology, not just ap
       )}
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white mt-20">
+      <footer className="bg-gray-900 text-white mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-xl font-bold mb-4">DSTI R&D Platform</h3>
-              <p className="text-gray-400">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Building2 className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold">DSTI R&D Platform</h3>
+              </div>
+              <p className="text-gray-400 leading-relaxed">
                 Modern, secure, audit-ready application system for South Africa&apos;s R&D Tax Incentive Programme.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
+              <h4 className="font-semibold mb-4 text-lg">Quick Links</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/" className="hover:text-white transition">Home</Link></li>
-                <li><a href="/how-it-works" className="hover:text-white transition">How It Works</a></li>
-                <li><a href="/guidelines" className="hover:text-white transition">Guidelines</a></li>
-                <li><a href="/eligibility" className="hover:text-white transition">Check Eligibility</a></li>
+                <li><Link href="/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Home</Link></li>
+                <li><a href="/how-it-works" className="hover:text-white transition-colors hover:translate-x-1 inline-block">How It Works</a></li>
+                <li><a href="/guidelines" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Guidelines</a></li>
+                <li><a href="/eligibility" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Check Eligibility</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
+              <h4 className="font-semibold mb-4 text-lg">Support</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="/login" className="hover:text-white transition">Sign In</a></li>
-                <li><a href="mailto:support@dsti.gov.za" className="hover:text-white transition">Contact Support</a></li>
+                <li><a href="/login" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Sign In</a></li>
+                <li><a href="mailto:support@dsti.gov.za" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Contact Support</a></li>
               </ul>
             </div>
           </div>
