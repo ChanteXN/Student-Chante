@@ -84,11 +84,21 @@ export default function NewProjectPage() {
   const urlProjectId = searchParams.get('id');
   const urlStep = searchParams.get('step');
   
+  // Priority: URL parameter > Session storage
+  // If URL has ID, use it. Otherwise check session storage. If neither, create new.
+  const storedProjectId = typeof window !== 'undefined' ? sessionStorage.getItem('currentProjectId') : null;
+  const initialProjectId = urlProjectId || storedProjectId;
+  
+  // Clear session storage ONLY if explicitly going to /new without any ID
+  if (typeof window !== 'undefined' && !urlProjectId && !storedProjectId) {
+    sessionStorage.removeItem('currentProjectId');
+  }
+  
   const { data: session } = useSession();
   const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(urlStep ? parseInt(urlStep) : 0);
-  const [projectId, setProjectId] = useState<string | null>(urlProjectId);
+  const [projectId, setProjectId] = useState<string | null>(initialProjectId);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -109,6 +119,9 @@ export default function NewProjectPage() {
 
   // Track if user has made changes
   const hasUnsavedChanges = useRef(false);
+  
+  // Track if project initialization has been attempted to prevent duplicates
+  const initializationAttempted = useRef(false);
 
   // Form data
   const [basicsData, setBasicsData] = useState<ProjectBasicsData>({
@@ -148,16 +161,25 @@ export default function NewProjectPage() {
   useEffect(() => {
     const initializeProject = async () => {
       if (!session?.user?.email) return;
+      
+      // Prevent duplicate initialization
+      if (initializationAttempted.current) {
+        console.log("Initialization already attempted, skipping");
+        return;
+      }
+      initializationAttempted.current = true;
 
       setIsLoading(true);
       try {
-        // If we have a project ID in URL, load that project
-        if (urlProjectId) {
-          const response = await fetch(`/api/projects/${urlProjectId}`);
+        // If we have a project ID in URL or session storage, load that project
+        if (initialProjectId) {
+          console.log("Loading existing project:", initialProjectId);
+          const response = await fetch(`/api/projects/${initialProjectId}`);
           
-          // If project doesn't exist, clear URL and create new one
+          // If project doesn't exist, clear storage and create new one
           if (!response.ok) {
-            console.warn(`Project ${urlProjectId} not found, creating new project`);
+            console.warn(`Project ${initialProjectId} not found, creating new project`);
+            sessionStorage.removeItem('currentProjectId');
             window.history.replaceState({}, '', '/portal/projects/new');
             // Create new project instead
             const newResponse = await fetch("/api/projects", {
@@ -170,6 +192,7 @@ export default function NewProjectPage() {
             if (!newResponse.ok) throw new Error("Failed to create project");
             const newProject = await newResponse.json();
             setProjectId(newProject.id);
+            sessionStorage.setItem('currentProjectId', newProject.id);
             
             // Update URL to include project ID
             window.history.replaceState({}, '', `/portal/projects/new?id=${newProject.id}`);
@@ -184,33 +207,50 @@ export default function NewProjectPage() {
 
           const project = await response.json();
           setProjectId(project.id);
+          sessionStorage.setItem('currentProjectId', project.id);
           
-          // Load existing data into form
-          if (project.title) setBasicsData(prev => ({ ...prev, title: project.title }));
-          if (project.sector) setBasicsData(prev => ({ ...prev, sector: project.sector }));
-          if (project.startDate) setBasicsData(prev => ({ ...prev, startDate: project.startDate }));
-          if (project.endDate) setBasicsData(prev => ({ ...prev, endDate: project.endDate }));
-          if (project.location) setBasicsData(prev => ({ ...prev, location: project.location }));
-
-          // Load section data
-          project.sections?.forEach((section: { sectionKey: string; sectionData: Record<string, string> }) => {
+          console.log("Loading project:", project.id);
+          console.log("Project sections:", project.sections);
+          
+          // Load existing data into form - merge with project-level fields first
+          const loadedBasicsData = {
+            title: project.title || "",
+            sector: project.sector || "",
+            startDate: project.startDate || "",
+            endDate: project.endDate || "",
+            location: project.location || "",
+          };
+          
+          // Load section data and merge with project-level data
+          project.sections?.forEach((section: { sectionKey: string; sectionData: any }) => {
+            console.log(`Loading section: ${section.sectionKey}`, section.sectionData);
+            
+            // Parse sectionData if it's a string (JSON)
+            const data = typeof section.sectionData === 'string' 
+              ? JSON.parse(section.sectionData) 
+              : section.sectionData;
+            
             if (section.sectionKey === 'basics') {
-              setBasicsData(prev => ({ ...prev, ...section.sectionData }));
-              lastSavedData.current.basics = section.sectionData as unknown as ProjectBasicsData;
+              Object.assign(loadedBasicsData, data);
+              lastSavedData.current.basics = { ...loadedBasicsData, ...data } as ProjectBasicsData;
             } else if (section.sectionKey === 'uncertainty') {
-              setUncertaintyData(section.sectionData as unknown as UncertaintyData);
-              lastSavedData.current.uncertainty = section.sectionData as unknown as UncertaintyData;
+              setUncertaintyData(data as UncertaintyData);
+              lastSavedData.current.uncertainty = data as UncertaintyData;
             } else if (section.sectionKey === 'methodology') {
-              setMethodologyData(section.sectionData as unknown as MethodologyData);
-              lastSavedData.current.methodology = section.sectionData as unknown as MethodologyData;
+              setMethodologyData(data as MethodologyData);
+              lastSavedData.current.methodology = data as MethodologyData;
             } else if (section.sectionKey === 'team') {
-              setTeamData(section.sectionData as unknown as TeamData);
-              lastSavedData.current.team = section.sectionData as unknown as TeamData;
+              setTeamData(data as TeamData);
+              lastSavedData.current.team = data as TeamData;
             } else if (section.sectionKey === 'expenditure') {
-              setExpenditureData(section.sectionData as unknown as ExpenditureData);
-              lastSavedData.current.expenditure = section.sectionData as unknown as ExpenditureData;
+              setExpenditureData(data as ExpenditureData);
+              lastSavedData.current.expenditure = data as ExpenditureData;
             }
           });
+          
+          // Set basics data after all sections are loaded
+          setBasicsData(loadedBasicsData);
+          console.log("Loaded basics data:", loadedBasicsData);
 
           toast({
             title: "Project loaded",
@@ -233,6 +273,7 @@ export default function NewProjectPage() {
 
           const project = await response.json();
           setProjectId(project.id);
+          sessionStorage.setItem('currentProjectId', project.id);
           
           // Update URL to include project ID so it persists on page refresh
           window.history.replaceState({}, '', `/portal/projects/new?id=${project.id}`);
@@ -256,7 +297,21 @@ export default function NewProjectPage() {
     };
 
     initializeProject();
-  }, [session, router, toast, urlProjectId]);
+  }, [session, router, toast, initialProjectId]);
+  
+  // Clear session storage when navigating away from wizard
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Keep session storage if still on the wizard page
+      if (!window.location.pathname.includes('/portal/projects/new')) {
+        sessionStorage.removeItem('currentProjectId');
+      }
+    };
+    
+    return () => {
+      handleBeforeUnload();
+    };
+  }, []);
 
   // Auto-save function - saves ALL sections with changes
   const saveProgress = useCallback(async () => {
@@ -270,9 +325,12 @@ export default function NewProjectPage() {
       const projectUpdates: Record<string, string> = {};
       if (basicsData.title) projectUpdates.title = basicsData.title;
       if (basicsData.sector) projectUpdates.sector = basicsData.sector;
-      if (basicsData.startDate) projectUpdates.startDate = basicsData.startDate;
-      if (basicsData.endDate) projectUpdates.endDate = basicsData.endDate;
+      if (basicsData.startDate) projectUpdates.startDate = new Date(basicsData.startDate).toISOString();
+      if (basicsData.endDate) projectUpdates.endDate = new Date(basicsData.endDate).toISOString();
       if (basicsData.location) projectUpdates.location = basicsData.location;
+      
+      console.log("Saving basics data:", basicsData);
+      console.log("Project updates to save:", projectUpdates);
 
       // Check basics data
       if (basicsData.title || basicsData.sector || basicsData.startDate || 
@@ -339,25 +397,39 @@ export default function NewProjectPage() {
       }
 
       // If no sections changed, don't save
-      if (sectionsToSave.length === 0) {
+      if (sectionsToSave.length === 0 && Object.keys(projectUpdates).length === 0) {
         setIsSaving(false);
         return;
       }
 
-      // Save all changed sections
+      // First, update project-level fields if there are any
+      if (Object.keys(projectUpdates).length > 0) {
+        console.log("Sending project update request:", projectUpdates);
+        const projectResponse = await fetch(`/api/projects/${projectId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(projectUpdates),
+        });
+        if (!projectResponse.ok) {
+          const error = await projectResponse.text();
+          console.error("Failed to save project fields:", error);
+          throw new Error("Failed to save project fields");
+        }
+        console.log("Project fields saved successfully");
+      }
+
+      // Then save all changed sections
       for (const section of sectionsToSave) {
         const response = await fetch(`/api/projects/${projectId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            // Always send project updates (they'll be ignored if section isn't basics)
-            ...projectUpdates,
             sectionKey: section.sectionKey,
             sectionData: section.sectionData,
           }),
         });
 
-        if (!response.ok) throw new Error("Failed to save");
+        if (!response.ok) throw new Error("Failed to save section");
       }
 
       hasUnsavedChanges.current = false;
@@ -385,7 +457,7 @@ export default function NewProjectPage() {
 
     const timer = setTimeout(() => {
       saveProgress();
-    }, 30000); // Save after 30 seconds of inactivity
+    }, 5000); // Save after 5 seconds of inactivity (reduced from 30)
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -397,6 +469,15 @@ export default function NewProjectPage() {
     expenditureData.totalBudget, expenditureData.rdCostsBreakdown, expenditureData.expenditureTimeline,
     projectId
   ]);
+  
+  // Handle step changes - save before changing
+  const handleStepChange = async (newStep: number) => {
+    // Save current progress before changing steps
+    if (hasUnsavedChanges.current) {
+      await saveProgress();
+    }
+    setCurrentStep(newStep);
+  };
 
   if (isLoading || !projectId) {
     return (
@@ -420,7 +501,7 @@ export default function NewProjectPage() {
       <ProjectWizard
         steps={WIZARD_STEPS}
         currentStep={currentStep}
-        onStepChange={setCurrentStep}
+        onStepChange={handleStepChange}
         onSave={saveProgress}
         isSaving={isSaving}
         projectId={projectId}

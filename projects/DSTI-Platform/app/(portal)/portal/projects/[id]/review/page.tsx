@@ -6,14 +6,36 @@ import { useSession } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Edit, CheckCircle, AlertCircle, FileText } from "lucide-react";
+import { Loader2, Edit, CheckCircle, AlertCircle, FileText, TrendingUp, AlertTriangle, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 interface ProjectSection {
   id: string;
   sectionKey: string;
   sectionData: Record<string, string>;
   isComplete: boolean;
+}
+
+interface ReadinessFix {
+  id: string;
+  severity: "critical" | "warning" | "info";
+  category: string;
+  title: string;
+  description: string;
+  section?: string;
+  points: number;
+}
+
+interface ReadinessResult {
+  totalScore: number;
+  breakdown: {
+    completeness: number;
+    evidence: number;
+    quality: number;
+  };
+  fixes: ReadinessFix[];
+  lastCalculated: string;
 }
 
 interface Project {
@@ -37,6 +59,8 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [readiness, setReadiness] = useState<ReadinessResult | null>(null);
+  const [loadingReadiness, setLoadingReadiness] = useState(false);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -48,6 +72,9 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
 
         const data = await response.json();
         setProject(data);
+        
+        // Fetch readiness score
+        fetchReadinessScore();
       } catch (error) {
         console.error("Error loading project:", error);
         toast({
@@ -63,6 +90,21 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
 
     fetchProject();
   }, [resolvedParams.id, session, router, toast]);
+
+  const fetchReadinessScore = async () => {
+    try {
+      setLoadingReadiness(true);
+      const response = await fetch(`/api/projects/${resolvedParams.id}/readiness`);
+      if (response.ok) {
+        const data = await response.json();
+        setReadiness(data);
+      }
+    } catch (error) {
+      console.error("Error fetching readiness score:", error);
+    } finally {
+      setLoadingReadiness(false);
+    }
+  };
 
   const getSectionData = (sectionKey: string) => {
     const section = project?.sections.find(s => s.sectionKey === sectionKey);
@@ -175,6 +217,188 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
           </div>
         )}
       </div>
+
+      {/* Readiness Score */}
+      {readiness && (
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Application Readiness Score
+                </CardTitle>
+                <CardDescription>
+                  Based on completeness, evidence quality, and content analysis
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchReadinessScore}
+                disabled={loadingReadiness}
+              >
+                {loadingReadiness ? "Calculating..." : "Recalculate"}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Score Circle */}
+              <div className="flex flex-col items-center justify-center p-6">
+                <div className="relative w-40 h-40 mb-4">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle
+                      cx="80"
+                      cy="80"
+                      r="70"
+                      stroke="currentColor"
+                      strokeWidth="12"
+                      fill="none"
+                      className="text-gray-200"
+                    />
+                    <circle
+                      cx="80"
+                      cy="80"
+                      r="70"
+                      stroke="currentColor"
+                      strokeWidth="12"
+                      fill="none"
+                      strokeDasharray={`${2 * Math.PI * 70}`}
+                      strokeDashoffset={`${2 * Math.PI * 70 * (1 - readiness.totalScore / 100)}`}
+                      className={
+                        readiness.totalScore >= 80
+                          ? "text-green-500"
+                          : readiness.totalScore >= 60
+                          ? "text-blue-500"
+                          : readiness.totalScore >= 40
+                          ? "text-amber-500"
+                          : "text-red-500"
+                      }
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-4xl font-bold">{readiness.totalScore}</span>
+                    <span className="text-sm text-muted-foreground">out of 100</span>
+                  </div>
+                </div>
+                <Badge
+                  variant={
+                    readiness.totalScore >= 80
+                      ? "default"
+                      : readiness.totalScore >= 60
+                      ? "secondary"
+                      : "outline"
+                  }
+                  className="text-sm"
+                >
+                  {readiness.totalScore >= 80
+                    ? "Excellent"
+                    : readiness.totalScore >= 60
+                    ? "Good"
+                    : readiness.totalScore >= 40
+                    ? "Fair"
+                    : "Needs Improvement"}
+                </Badge>
+              </div>
+
+              {/* Breakdown */}
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Completeness</span>
+                    <span className="text-sm font-bold">{readiness.breakdown.completeness}/40</span>
+                  </div>
+                  <Progress value={(readiness.breakdown.completeness / 40) * 100} className="h-2" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Evidence Quality</span>
+                    <span className="text-sm font-bold">{readiness.breakdown.evidence}/30</span>
+                  </div>
+                  <Progress value={(readiness.breakdown.evidence / 30) * 100} className="h-2" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Content Quality</span>
+                    <span className="text-sm font-bold">{readiness.breakdown.quality}/30</span>
+                  </div>
+                  <Progress value={(readiness.breakdown.quality / 30) * 100} className="h-2" />
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Last calculated: {new Date(readiness.lastCalculated).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Top Fixes */}
+      {readiness && readiness.fixes.length > 0 && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Top Fixes to Improve Your Score
+            </CardTitle>
+            <CardDescription>
+              Address these issues to strengthen your application
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {readiness.fixes.slice(0, 5).map((fix) => (
+                <div
+                  key={fix.id}
+                  className="flex items-start gap-3 p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                >
+                  {fix.severity === "critical" && (
+                    <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  )}
+                  {fix.severity === "warning" && (
+                    <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  )}
+                  {fix.severity === "info" && (
+                    <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-medium">{fix.title}</p>
+                      <Badge variant="outline" className="text-xs">
+                        +{fix.points} points
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{fix.description}</p>
+                  </div>
+                  {fix.section && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const stepMap: Record<string, number> = {
+                          basics: 0,
+                          uncertainty: 1,
+                          methodology: 2,
+                          team: 3,
+                          expenditure: 4,
+                        };
+                        const stepIndex = fix.section ? stepMap[fix.section] : undefined;
+                        if (stepIndex !== undefined) {
+                          handleEdit(stepIndex);
+                        }
+                      }}
+                    >
+                      Fix Now
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Project Basics */}
       <Card className="mb-6">
