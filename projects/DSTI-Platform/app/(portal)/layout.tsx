@@ -14,7 +14,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navigationItems = [
+interface NavItem {
+  title: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  highlight?: boolean;
+}
+
+const navigationItems: NavItem[] = [
   {
     title: "Dashboard",
     href: "/portal",
@@ -33,7 +40,7 @@ const navigationItems = [
   },
 ];
 
-const secondaryItems = [
+const secondaryItems: NavItem[] = [
   {
     title: "Guidelines",
     href: "/portal/guidelines",
