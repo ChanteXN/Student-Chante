@@ -45,7 +45,11 @@ export default function PortalPage() {
       // Fetch recent projects
       fetch("/api/projects?limit=5")
         .then((res) => res.json())
-        .then((data) => setRecentProjects(data.slice(0, 5)))
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setRecentProjects(data.slice(0, 5));
+          }
+        })
         .catch((error) => console.error("Error fetching projects:", error));
     }
   }, [status, router]);

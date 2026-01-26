@@ -75,8 +75,10 @@ export async function POST(request: Request) {
 export async function GET() {
   try {
     const session = await auth();
+    console.log("GET /api/projects - Session:", session ? "exists" : "null", "User ID:", session?.user?.id);
+    
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized - Please sign in" }, { status: 401 });
     }
 
     // Get user's organisation memberships
@@ -89,6 +91,14 @@ export async function GET() {
         organisationId: true,
       },
     });
+
+    console.log("Memberships found:", memberships.length);
+
+    // If user has no memberships, return empty array instead of error
+    if (memberships.length === 0) {
+      console.log("No memberships found for user, returning empty array");
+      return NextResponse.json([]);
+    }
 
     const orgIds = memberships.map((m) => m.organisationId);
 
@@ -111,11 +121,12 @@ export async function GET() {
       },
     });
 
+    console.log("Projects found:", projects.length);
     return NextResponse.json(projects);
   } catch (error) {
     console.error("Error fetching projects:", error);
     return NextResponse.json(
-      { error: "Failed to fetch projects" },
+      { error: "Failed to fetch projects", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

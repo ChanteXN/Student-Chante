@@ -36,7 +36,11 @@ export default function ProjectsPage() {
     const fetchProjects = async () => {
       try {
         const response = await fetch("/api/projects");
-        if (!response.ok) throw new Error("Failed to fetch projects");
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("API Error:", errorData);
+          throw new Error(errorData.error || "Failed to fetch projects");
+        }
         
         const data = await response.json();
         setProjects(data);
@@ -44,7 +48,7 @@ export default function ProjectsPage() {
         console.error("Error fetching projects:", error);
         toast({
           title: "Error",
-          description: "Failed to load projects.",
+          description: error instanceof Error ? error.message : "Failed to load projects.",
           variant: "destructive",
         });
       } finally {
