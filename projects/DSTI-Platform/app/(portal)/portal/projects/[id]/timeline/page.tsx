@@ -164,7 +164,7 @@ export default function ProjectTimelinePage() {
                 </CardContent>
               </Card>
             ) : (
-              timeline.map((entry, index) => (
+              timeline.map((entry, _index) => (
                 <div key={entry.id} className="relative pl-20">
                   {/* Icon */}
                   <div className="absolute left-5 w-8 h-8 bg-white rounded-full border-2 border-gray-300 flex items-center justify-center z-10">

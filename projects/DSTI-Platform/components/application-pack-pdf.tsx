@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 // Define types for the PDF data
 interface ProjectData {
@@ -124,7 +124,6 @@ const formatDate = (dateString: string | null) => {
 };
 
 export const ApplicationPackPDF: React.FC<{ project: ProjectData }> = ({ project }) => {
-  const basicsData = getSectionData(project.sections, 'basics');
   const uncertaintyData = getSectionData(project.sections, 'uncertainty');
   const methodologyData = getSectionData(project.sections, 'methodology');
   const teamData = getSectionData(project.sections, 'team');

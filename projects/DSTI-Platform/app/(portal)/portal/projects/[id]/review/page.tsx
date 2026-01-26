@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,6 +64,21 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
   const [readiness, setReadiness] = useState<ReadinessResult | null>(null);
   const [loadingReadiness, setLoadingReadiness] = useState(false);
 
+  const fetchReadinessScore = useCallback(async () => {
+    try {
+      setLoadingReadiness(true);
+      const response = await fetch(`/api/projects/${resolvedParams.id}/readiness`);
+      if (response.ok) {
+        const data = await response.json();
+        setReadiness(data);
+      }
+    } catch (error) {
+      console.error("Error fetching readiness score:", error);
+    } finally {
+      setLoadingReadiness(false);
+    }
+  }, [resolvedParams.id]);
+
   useEffect(() => {
     const fetchProject = async () => {
       if (!session?.user?.email) return;
@@ -91,22 +106,7 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
     };
 
     fetchProject();
-  }, [resolvedParams.id, session, router, toast]);
-
-  const fetchReadinessScore = async () => {
-    try {
-      setLoadingReadiness(true);
-      const response = await fetch(`/api/projects/${resolvedParams.id}/readiness`);
-      if (response.ok) {
-        const data = await response.json();
-        setReadiness(data);
-      }
-    } catch (error) {
-      console.error("Error fetching readiness score:", error);
-    } finally {
-      setLoadingReadiness(false);
-    }
-  };
+  }, [resolvedParams.id, session, router, toast, fetchReadinessScore]);
 
   const getSectionData = (sectionKey: string) => {
     const section = project?.sections.find(s => s.sectionKey === sectionKey);
