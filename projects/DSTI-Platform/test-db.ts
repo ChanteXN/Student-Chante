@@ -17,9 +17,9 @@ async function main() {
   console.log('\n📋 PROJECTS:', projects.length);
   projects.forEach(p => console.log(`   - ${p.title} - ${p.status}`));
 
-  const categories = await prisma.evidenceCategory.findMany();
-  console.log('\n📁 EVIDENCE CATEGORIES:', categories.length);
-  categories.forEach(c => console.log(`   - ${c.name} (Required: ${c.isRequired})`));
+  const evidenceFiles = await prisma.evidenceFile.findMany();
+  console.log('\n📁 EVIDENCE FILES:', evidenceFiles.length);
+  evidenceFiles.forEach(f => console.log(`   - ${f.fileName} - ${f.category}`));
 
   const sections = await prisma.projectSection.findMany();
   console.log('\n📝 PROJECT SECTIONS:', sections.length);
