@@ -222,7 +222,7 @@ export default function NewProjectPage() {
           };
           
           // Load section data and merge with project-level data
-          project.sections?.forEach((section: { sectionKey: string; sectionData: any }) => {
+          project.sections?.forEach((section: { sectionKey: string; sectionData: unknown }) => {
             console.log(`Loading section: ${section.sectionKey}`, section.sectionData);
             
             // Parse sectionData if it's a string (JSON)

@@ -29,6 +29,7 @@ export async function GET(
     }
 
     // Calculate readiness score
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = calculateReadinessScore(project as any);
 
     // Update project with new readiness score
