@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Edit, CheckCircle, AlertCircle, FileText, TrendingUp, AlertTriangle, Info } from "lucide-react";
+import { Loader2, Edit, CheckCircle, AlertCircle, FileText, TrendingUp, AlertTriangle, Info, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
@@ -46,6 +46,8 @@ interface Project {
   endDate: string | null;
   location: string | null;
   status: string;
+  caseReference?: string | null;
+  submittedAt?: string | null;
   readinessScore: number | null;
   sections: ProjectSection[];
 }
@@ -116,35 +118,47 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
   };
 
   const handleSubmit = async () => {
-    if (completeness < 100) return;
+    // Check if project can be submitted
+    if (!readiness || readiness.totalScore < 60) {
+      toast({
+        title: "Cannot Submit",
+        description: "Your application must have a readiness score of at least 60 to submit.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Confirmation dialog
+    if (!confirm("Are you sure you want to submit this application? You won't be able to edit it after submission.")) {
+      return;
+    }
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/projects/${resolvedParams.id}`, {
-        method: "PATCH",
+      const response = await fetch(`/api/projects/${resolvedParams.id}/submit`, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          status: "SUBMITTED",
-          submittedAt: new Date().toISOString(),
-        }),
       });
 
-      if (!response.ok) throw new Error("Failed to submit application");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to submit application");
+      }
+
+      const result = await response.json();
 
       toast({
         title: "Application Submitted!",
-        description: "Your R&D tax incentive application has been successfully submitted.",
+        description: `Your application has been submitted with case reference: ${result.caseReference}`,
       });
 
-      // Redirect to portal after a brief delay
-      setTimeout(() => {
-        router.push("/portal");
-      }, 1500);
+      // Redirect to confirmation page
+      router.push(`/portal/projects/${resolvedParams.id}/submitted` as never);
     } catch (error) {
       console.error("Error submitting application:", error);
       toast({
         title: "Submission Failed",
-        description: "There was an error submitting your application. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error submitting your application. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -628,33 +642,71 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
       {/* Actions */}
       <div className="flex items-center justify-between mt-8 p-6 bg-gray-50 rounded-lg border">
         <div>
-          <p className="font-medium">Ready to submit?</p>
-          <p className="text-sm text-muted-foreground">
-            {completeness === 100
-              ? "Your application is complete and ready for submission."
-              : "Please complete all sections before submitting."}
-          </p>
+          {project?.status === "DRAFT" ? (
+            <>
+              <p className="font-medium">Ready to submit?</p>
+              <p className="text-sm text-muted-foreground">
+                {!readiness
+                  ? "Calculating readiness score..."
+                  : readiness.totalScore < 60
+                  ? `Your application needs more work (readiness: ${readiness.totalScore}/100). Minimum score: 60.`
+                  : readiness.totalScore < 100
+                  ? `Your application is ready for submission (readiness: ${readiness.totalScore}/100).`
+                  : "Your application is complete and ready for submission."}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="font-medium">Application Submitted</p>
+              <p className="text-sm text-muted-foreground">
+                {project.caseReference && `Case Reference: ${project.caseReference}`}
+                {project.submittedAt && ` • Submitted on ${new Date(project.submittedAt).toLocaleDateString('en-ZA', { dateStyle: 'long' })}`}
+              </p>
+            </>
+          )}
         </div>
         <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/portal/projects/new?id=${resolvedParams.id}`)}
-          >
-            Back to Editor
-          </Button>
-          <Button 
-            disabled={completeness < 100 || isSubmitting}
-            onClick={handleSubmit}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              "Submit Application"
-            )}
-          </Button>
+          {project?.status === "DRAFT" ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => router.push(`/portal/projects/new?id=${resolvedParams.id}`)}
+              >
+                Back to Editor
+              </Button>
+              <Button 
+                disabled={!readiness || readiness.totalScore < 60 || isSubmitting}
+                onClick={handleSubmit}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Application"
+                )}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => router.push(`/portal/projects/${resolvedParams.id}/timeline` as never)}
+              >
+                <Clock className="h-4 w-4 mr-2" />
+                View Timeline
+              </Button>
+              {project?.status === "SUBMITTED" && (
+                <Button
+                  onClick={() => router.push(`/portal/projects/${resolvedParams.id}/submitted` as never)}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  View Submission Details
+                </Button>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

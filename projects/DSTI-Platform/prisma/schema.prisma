@@ -139,6 +139,7 @@ model Project {
   startDate      DateTime?
   endDate        DateTime?
   location       String?
+  caseReference  String?       @unique
   status         ProjectStatus @default(DRAFT)
   readinessScore Int?
   submittedAt    DateTime?
