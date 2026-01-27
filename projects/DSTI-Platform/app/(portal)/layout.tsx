@@ -11,7 +11,8 @@ import {
   Settings, 
   HelpCircle,
   Plus,
-  TrendingUp
+  TrendingUp,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,11 @@ const navigationItems: NavItem[] = [
     title: "My Projects",
     href: "/portal/projects",
     icon: FolderOpen,
+  },
+  {
+    title: "AI Assistant",
+    href: "/portal/ai-assistant",
+    icon: Sparkles,
   },
   {
     title: "New Application",

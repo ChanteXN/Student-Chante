@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, FolderOpen, Clock, Bell, Plus, ArrowRight, CheckCircle } from "lucide-react";
+import { FileText, FolderOpen, Clock, Bell, Plus, ArrowRight, CheckCircle, Sparkles } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -205,6 +205,22 @@ export default function PortalPage() {
               </div>
               <span className="text-xs text-muted-foreground text-left">
                 Review application guidelines
+              </span>
+            </Button>
+
+            <Button 
+              className="h-auto py-4 flex flex-col items-start gap-2 hover:border-blue-300 hover:shadow-lg transition-all" 
+              variant="outline"
+              onClick={() => router.push("/portal/ai-assistant")}
+            >
+              <div className="flex items-center gap-2 w-full">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-white" />
+                </div>
+                <span className="font-semibold">AI Assistant</span>
+              </div>
+              <span className="text-xs text-muted-foreground text-left">
+                Get instant answers to R&D questions
               </span>
             </Button>
           </div>

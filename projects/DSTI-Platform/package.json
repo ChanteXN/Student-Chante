@@ -11,7 +11,9 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:reset": "prisma db push --force-reset && npm run db:seed"
+    "db:reset": "prisma db push --force-reset && npm run db:seed",
+    "ai:ingest": "tsx scripts/ingest-knowledge-base.ts",
+    "ai:test": "tsx scripts/test-rag.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

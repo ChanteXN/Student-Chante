@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ProjectWizard, WizardStep } from "@/components/project-wizard";
+import { AICoPilot } from "@/components/ai-copilot";
 import { useSession } from "next-auth/react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -608,6 +609,17 @@ export default function NewProjectPage() {
                   })
                 }
               />
+              <AICoPilot
+                sectionKey="uncertainty"
+                content={uncertaintyData.uncertainty}
+                onApply={(improvedText) =>
+                  setUncertaintyData({
+                    ...uncertaintyData,
+                    uncertainty: improvedText,
+                  })
+                }
+                className="mt-2"
+              />
             </div>
 
             <div className="space-y-2">
@@ -650,6 +662,17 @@ export default function NewProjectPage() {
                     researchApproach: e.target.value,
                   })
                 }
+              />
+              <AICoPilot
+                sectionKey="methodology"
+                content={methodologyData.researchApproach}
+                onApply={(improvedText) =>
+                  setMethodologyData({
+                    ...methodologyData,
+                    researchApproach: improvedText,
+                  })
+                }
+                className="mt-2"
               />
             </div>
 
@@ -766,6 +789,17 @@ export default function NewProjectPage() {
                   })
                 }
               />
+              <AICoPilot
+                sectionKey="team"
+                content={teamData.qualifications}
+                onApply={(improvedText) =>
+                  setTeamData({
+                    ...teamData,
+                    qualifications: improvedText,
+                  })
+                }
+                className="mt-2"
+              />
             </div>
 
             <div className="space-y-2">
@@ -784,6 +818,17 @@ export default function NewProjectPage() {
                     rolesResponsibilities: e.target.value,
                   })
                 }
+              />
+              <AICoPilot
+                sectionKey="team"
+                content={teamData.rolesResponsibilities}
+                onApply={(improvedText) =>
+                  setTeamData({
+                    ...teamData,
+                    rolesResponsibilities: improvedText,
+                  })
+                }
+                className="mt-2"
               />
             </div>
           </div>

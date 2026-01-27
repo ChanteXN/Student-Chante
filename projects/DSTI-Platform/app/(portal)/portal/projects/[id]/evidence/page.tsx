@@ -26,6 +26,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { formatDistanceToNow } from "date-fns";
+import { EvidenceGapDetector } from "@/components/evidence-gap-detector";
 
 interface EvidenceFile {
   id: string;
@@ -321,7 +322,13 @@ export default function EvidenceVaultPage() {
 
       {/* Evidence Files by Category */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Uploaded Evidence</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Uploaded Evidence</h2>
+          <EvidenceGapDetector
+            projectId={projectId}
+            uploadedCategories={evidenceFiles.map((f) => f.category)}
+          />
+        </div>
 
         {loading ? (
           <Card>
