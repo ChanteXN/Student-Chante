@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     // Use mock responses for UI testing
     if (USE_MOCK) {
       const section = sectionKey || context || "general";
-      let response = mockImproveResponse(section, text);
+      const response = mockImproveResponse(section, text);
       
       // GUARDRAIL: Scan improved text for violations
       const violationCheck = scanResponseForViolations(response.answer);
