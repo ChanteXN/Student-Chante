@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Edit, CheckCircle, AlertCircle, FileText, TrendingUp, AlertTriangle, Info, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { RiskDetector } from "@/components/risk-detector";
 
 interface ProjectSection {
   id: string;
@@ -640,23 +641,28 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
       </Card>
 
       {/* Actions */}
-      <div className="flex items-center justify-between mt-8 p-6 bg-gray-50 rounded-lg border">
-        <div>
-          {project?.status === "DRAFT" ? (
-            <>
-              <p className="font-medium">Ready to submit?</p>
-              <p className="text-sm text-muted-foreground">
-                {!readiness
-                  ? "Calculating readiness score..."
-                  : readiness.totalScore < 60
-                  ? `Your application needs more work (readiness: ${readiness.totalScore}/100). Minimum score: 60.`
-                  : readiness.totalScore < 100
-                  ? `Your application is ready for submission (readiness: ${readiness.totalScore}/100).`
-                  : "Your application is complete and ready for submission."}
-              </p>
-            </>
-          ) : (
-            <>
+      <div className="space-y-4 mt-8">
+        {project?.status === "DRAFT" && (
+          <RiskDetector projectId={resolvedParams.id} />
+        )}
+        
+        <div className="flex items-center justify-between p-6 bg-gray-50 rounded-lg border">
+          <div>
+            {project?.status === "DRAFT" ? (
+              <>
+                <p className="font-medium">Ready to submit?</p>
+                <p className="text-sm text-muted-foreground">
+                  {!readiness
+                    ? "Calculating readiness score..."
+                    : readiness.totalScore < 60
+                    ? `Your application needs more work (readiness: ${readiness.totalScore}/100). Minimum score: 60.`
+                    : readiness.totalScore < 100
+                    ? `Your application is ready for submission (readiness: ${readiness.totalScore}/100).`
+                    : "Your application is complete and ready for submission."}
+                </p>
+              </>
+            ) : (
+              <>
               <p className="font-medium">Application Submitted</p>
               <p className="text-sm text-muted-foreground">
                 {project.caseReference && `Case Reference: ${project.caseReference}`}
@@ -708,6 +714,7 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
             </>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
