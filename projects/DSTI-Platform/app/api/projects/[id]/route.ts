@@ -63,6 +63,11 @@ export async function PATCH(
 
     // Update section data if provided
     if (sectionKey && sectionData) {
+      // Check if section has meaningful data (not just empty strings)
+      const hasData = Object.values(sectionData).some(
+        (value) => value && String(value).trim() !== ""
+      );
+
       await prisma.projectSection.upsert({
         where: {
           projectId_sectionKey: {
@@ -74,9 +79,11 @@ export async function PATCH(
           projectId: id,
           sectionKey,
           sectionData,
+          isComplete: hasData, // Mark as complete if it has data
         },
         update: {
           sectionData,
+          isComplete: hasData, // Update completion status based on data
           updatedAt: new Date(),
         },
       });

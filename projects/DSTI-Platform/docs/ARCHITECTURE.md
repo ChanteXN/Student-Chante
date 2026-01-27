@@ -1,9 +1,9 @@
 # DSTI Platform - System Architecture
 
-**Last Updated**: Week 2, Day 6 (January 22, 2026)  
+**Last Updated**: Week 2, Day 6 (January 21, 2026)  
 **Status**: Authentication & Project Builder Implemented
 
-## High-Level Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -63,7 +63,7 @@
 
 ## Application Flow
 
-### Authentication Flow (✅ Implemented)
+### Authentication Flow ( Implemented)
 ```
 New User → Register Page → Enter Email → Verify Email (magic link)
                                               ↓
@@ -91,7 +91,7 @@ User → Landing Page → Check Eligibility → Eligibility Screener
                     → Start Application → Register/Login (magic link)
 ```
 
-### Applicant Portal Flow (✅ Week 2, Day 6 Complete)
+### Applicant Portal Flow ( Week 2, Day 6 Complete)
 ```
 Login → Dashboard → New Application → Project Builder Wizard
                                    ↓
@@ -134,7 +134,7 @@ Login → Dashboard → View Applications → Screen & Triage
 
 ## Technology Stack
 
-### Frontend (✅ Implemented)
+### Frontend ( Implemented)
 - **Framework**: Next.js 15.5.9 (App Router)
 - **Language**: TypeScript 5
 - **Styling**: Tailwind CSS 3.4
@@ -144,25 +144,25 @@ Login → Dashboard → View Applications → Screen & Triage
 - **Form Management**: React Hook Form (planned)
 - **Validation**: Zod schemas (planned for Day 8)
 
-### Backend (✅ Partially Implemented)
+### Backend ( Partially Implemented)
 - **API**: Next.js API Routes
   - `POST /api/auth/signin` (NextAuth - magic link generation)
   - `POST /api/projects` (Create new project)
   - `GET /api/projects` (List user's projects)
   - `GET /api/projects/[id]` (Fetch project with sections)
   - `PATCH /api/projects/[id]` (Update project + upsert sections)
-- **Auth**: NextAuth.js v5 with Resend provider (✅ Implemented)
-- **Email Service**: Resend API for magic link delivery (✅ Implemented)
+- **Auth**: NextAuth.js v5 with Resend provider ( Implemented)
+- **Email Service**: Resend API for magic link delivery ( Implemented)
 - **Validation**: Field-level validation (basic) - Zod schemas pending
 
-### Database (✅ Implemented)
+### Database ( Implemented)
 - **Database**: PostgreSQL (Neon managed instance)
 - **ORM**: Prisma 6.19.2
 - **Migrations**: Prisma Migrate
 - **Connection Pooling**: Configured via Neon
 - **Schema Status**: Production-ready with validated relationships
 
-### DevOps (✅ Implemented)
+### DevOps ( Implemented)
 - **Version Control**: Git + GitHub
 - **CI/CD**: Vercel automatic deployments (connected to `development` branch)
 - **Build**: ESLint validation on push
@@ -174,14 +174,14 @@ Login → Dashboard → View Applications → Screen & Triage
 ┌─────────────────────────────────────────┐
 │         Security Layers                 │
 ├─────────────────────────────────────────┤
-│  1. Authentication (✅ Implemented)     │
+│  1. Authentication ( Implemented)     │
 │     • Email magic link (NextAuth.js)    │
 │     • JWT session management            │
 │     • 12-hour session expiry            │
 │     • Passwordless authentication       │
 │     • Auto-registration on verification │
 ├─────────────────────────────────────────┤
-│  2. Authorization (🔄 Partial)          │
+│  2. Authorization ( Partial)          │
 │     • Session-based route protection    │
 │     • Middleware auth checks            │
 │     • API route session validation      │
@@ -191,7 +191,7 @@ Login → Dashboard → View Applications → Screen & Triage
 │       - Reviewer Role                   │
 │       - Admin Role                      │
 ├─────────────────────────────────────────┤
-│  3. Data Protection (✅ Implemented)    │
+│  3. Data Protection ( Implemented)    │
 │     • Prisma parameterized queries      │
 │     • Foreign key constraints           │
 │     • Cascade delete protection         │
@@ -229,7 +229,7 @@ Login → Dashboard → View Applications → Screen & Triage
 - Cookie: httpOnly, secure (production), sameSite: lax
 - Trust Host: Enabled for proper session persistence
 
-## Data Model (✅ Implemented)
+## Data Model ( Implemented)
 
 ```
 User ──┬── Membership ── Organisation ── Project ──┬── ProjectSection
@@ -284,7 +284,7 @@ User ──┬── Membership ── Organisation ── Project ──┬─�
 - Cascade: Delete section when project deleted
 - Upsert pattern prevents duplicate sections
 
-### Database Relationships Validated ✅
+### Database Relationships Validated 
 - All foreign keys properly configured
 - Cascade deletes protect data integrity
 - Unique constraints prevent duplicates
@@ -298,9 +298,9 @@ User ──┬── Membership ── Organisation ── Project ──┬─�
 │                    Vercel Edge                      │
 │  ┌────────────────────────────────────────────┐   │
 │  │  Next.js Application (Server Components)   │   │
-│  │  • API Routes (✅ Implemented)             │   │
-│  │  • Server Actions (⏳ Planned)             │   │
-│  │  • Middleware (✅ Auth check)              │   │
+│  │  • API Routes ( Implemented)             │   │
+│  │  • Server Actions ( Planned)             │   │
+│  │  • Middleware ( Auth check)              │   │
 │  └────────────────────────────────────────────┘   │
 │                                                      │
 │  Automatic Deployments:                             │
@@ -314,7 +314,7 @@ User ──┬── Membership ── Organisation ── Project ──┬─�
 ┌─────────────────┐       ┌─────────────────┐
 │  PostgreSQL     │       │  S3 / Supabase  │
 │  Neon (Managed) │       │  Object Storage │
-│  ✅ Configured  │       │  ⏳ Planned     │
+│   Configured  │       │   Planned     │
 └─────────────────┘       └─────────────────┘
 ```
 
@@ -326,11 +326,11 @@ User ──┬── Membership ── Organisation ── Project ──┬─�
 - `development` → Preview deployments (active)
 
 **Environment Variables Required:**
-- `DATABASE_URL` - Neon PostgreSQL connection string ✅
-- `NEXTAUTH_URL` - Application URL ✅
-- `NEXTAUTH_SECRET` - JWT signing secret ✅
-- `RESEND_API_KEY` - Email service API key ✅
-- `EMAIL_FROM` - Sender email address ✅
+- `DATABASE_URL` - Neon PostgreSQL connection string 
+- `NEXTAUTH_URL` - Application URL 
+- `NEXTAUTH_SECRET` - JWT signing secret 
+- `RESEND_API_KEY` - Email service API key 
+- `EMAIL_FROM` - Sender email address 
 
 **Build Process:**
 1. Push to GitHub
@@ -343,7 +343,7 @@ User ──┬── Membership ── Organisation ── Project ──┬─�
 
 ## Current Implementation Status
 
-### ✅ Completed (Week 1-2)
+###  Completed (Week 1-2)
 
 **Week 1 (Foundation):**
 - [x] Next.js 15 application structure with App Router
@@ -378,12 +378,12 @@ User ──┬── Membership ── Organisation ── Project ──┬─�
 - [x] Next.js 15 async params pattern compliance
 - [x] Production build passing (ESLint validated)
 
-### 🔄 In Progress (Week 2, Day 7)
+###  In Progress (Week 2, Day 7)
 - [ ] Step 3: Methodology & Innovation
 - [ ] Step 4: Team & Expertise
 - [ ] Step 5: Budget & Expenditure
 
-### ⏳ Planned (Week 2, Day 8-9)
+###  Planned (Week 2, Day 8-9)
 
 **Day 8:**
 - [ ] Form validation with Zod schemas
@@ -397,7 +397,7 @@ User ──┬── Membership ── Organisation ── Project ──┬─�
 - [ ] Project cards with progress indicators
 - [ ] Continue/Delete actions
 
-### ⏳ Future Weeks
+###  Future Weeks
 
 **Week 3:**
 - [ ] Evidence vault file upload
@@ -417,7 +417,7 @@ User ──┬── Membership ── Organisation ── Project ──┬─�
 - [ ] Email notifications
 - [ ] Advanced RBAC
 
-### 🚨 Technical Debt
+###  Technical Debt
 - [ ] Proper organisation onboarding flow (currently auto-creates)
 - [ ] Check for existing drafts before creating new project
 - [ ] Error boundaries for API failures
@@ -428,7 +428,7 @@ User ──┬── Membership ── Organisation ── Project ──┬─�
 
 ---
 
-**Architecture Status**: ✅ Authentication & Core Project Builder Complete  
+**Architecture Status**: Authentication & Core Project Builder Complete  
 **Current Sprint**: Week 2, Day 6 → Day 7  
 **Next Milestone**: Complete all 5 wizard steps (Day 7)  
 **Next Review**: End of Week 2 (Day 9)

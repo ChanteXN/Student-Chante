@@ -238,13 +238,31 @@ model ReviewRequest {
   status      ReviewRequestStatus @default(PENDING)
   response    String?
   respondedAt DateTime?
+  respondedBy String?
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
 
   // Relations
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project     Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  attachments ReviewRequestAttachment[]
 
   @@map("review_requests")
+}
+
+model ReviewRequestAttachment {
+  id        String   @id @default(cuid())
+  requestId String
+  fileName  String
+  fileSize  Int
+  filePath  String
+  mimeType  String?
+  uploadedBy String? // User ID who uploaded
+  createdAt DateTime @default(now())
+
+  // Relations
+  request ReviewRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("review_request_attachments")
 }
 
 model ReviewerAssignment {

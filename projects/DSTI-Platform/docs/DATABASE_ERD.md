@@ -1,8 +1,7 @@
 # DSTI Platform - Entity Relationship Diagram (ERD)
 
 **Project**: DSTI R&D Tax Incentive Application Management System  
-**Document Version**: 1.0  
-**Date**: January 22, 2026  
+**Date**: January 21, 2026  
 **Database**: PostgreSQL 16 (via Neon)
 
 ---
@@ -632,6 +631,5 @@ psql $DATABASE_URL < backup_20260122.sql
 
 **END OF ERD DOCUMENT**
 
-**Database Version**: 1.0  
 **Last Updated**: January 22, 2026 (Week 2, Day 6)  
 **Status**: Production-Ready (Core models implemented, Future models planned)
