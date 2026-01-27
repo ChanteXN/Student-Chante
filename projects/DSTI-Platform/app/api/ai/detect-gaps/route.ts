@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     // Use mock responses for UI testing
     if (USE_MOCK) {
-      let response = mockDetectGapsResponse(sections || { description: projectDescription });
+      const response = mockDetectGapsResponse(sections || { description: projectDescription });
       
       // GUARDRAIL: Scan all gap messages for violations
       if (response.gaps) {

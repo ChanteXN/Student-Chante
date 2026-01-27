@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     // Use mock responses for UI testing
     if (USE_MOCK) {
-      let response = mockAskResponse(query);
+      const response = mockAskResponse(query);
       
       // GUARDRAIL: Scan response for violations
       const violationCheck = scanResponseForViolations(response.answer);
