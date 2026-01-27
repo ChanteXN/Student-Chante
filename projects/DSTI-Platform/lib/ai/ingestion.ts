@@ -1,5 +1,6 @@
 // Lazy load pdf-parse only when needed to avoid Node.js compatibility issues
-let pdfParse: any = null;
+type PdfParseFunction = (dataBuffer: Buffer) => Promise<{ text: string; numpages: number }>;
+let pdfParse: PdfParseFunction | null = null;
 async function getPdfParse() {
   if (!pdfParse) {
     // @ts-ignore - pdf-parse has export issues with ESM
@@ -35,6 +36,9 @@ export async function ingestPDF(
 
     // Lazy load pdf-parse to avoid Node.js compatibility issues
     const pdfParser = await getPdfParse();
+    if (!pdfParser) {
+      throw new Error("Failed to load PDF parser");
+    }
 
     // Read PDF file
     const dataBuffer = await readFile(filePath);
@@ -99,7 +103,7 @@ export async function ingestPDF(
               chunkIndex: chunk.chunkIndex,
               content: chunk.content,
               embedding: JSON.stringify(embedding),
-              metadata,
+              metadata: metadata as Record<string, string | number>,
             },
           });
         })
@@ -192,7 +196,7 @@ export async function ingestText(
               chunkIndex: chunk.chunkIndex,
               content: chunk.content,
               embedding: JSON.stringify(embedding),
-              metadata,
+              metadata: metadata as Record<string, string | number>,
             },
           });
         })

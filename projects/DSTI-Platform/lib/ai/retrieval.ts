@@ -6,7 +6,7 @@ export interface RetrievedChunk {
   documentTitle: string;
   documentType: string;
   similarity: number;
-  metadata?: Record<string, any>;
+  metadata: Record<string, unknown> | undefined;
   chunkIndex: number;
 }
 
@@ -38,7 +38,7 @@ export async function retrieveRelevantChunks(
 
     // Retrieve all chunks with embeddings
     console.log("Fetching document chunks...");
-    const chunks = await (prisma as any).documentChunk.findMany({
+    const chunks = await prisma.documentChunk.findMany({
       where: {
         embedding: {
           not: null,
@@ -47,7 +47,7 @@ export async function retrieveRelevantChunks(
           ? {
               isActive: true,
               type: {
-                in: opts.documentTypes as any[],
+                in: opts.documentTypes as ("GUIDELINE_PDF" | "HELP_ARTICLE" | "FAQ" | "EXAMPLE" | "POLICY")[],
               },
             }
           : {
@@ -70,37 +70,36 @@ export async function retrieveRelevantChunks(
     console.log(`Processing ${chunks.length} chunks...`);
 
     // Calculate similarity scores
-    const chunksWithScores = chunks
-      .map((chunk: any) => {
-        if (!chunk.embedding) return null;
+    const chunksWithScores: RetrievedChunk[] = [];
+    
+    for (const chunk of chunks) {
+      if (!chunk.embedding) continue;
 
-        try {
-          const chunkEmbedding = JSON.parse(chunk.embedding) as number[];
-          const similarity = cosineSimilarity(queryEmbedding, chunkEmbedding);
+      try {
+        const chunkEmbedding = JSON.parse(chunk.embedding) as number[];
+        const similarity = cosineSimilarity(queryEmbedding, chunkEmbedding);
 
-          return {
-            content: chunk.content,
-            documentTitle: chunk.document.title,
-            documentType: chunk.document.type,
-            similarity,
-            metadata: chunk.metadata as Record<string, any> | undefined,
-            chunkIndex: chunk.chunkIndex,
-          };
-        } catch (error) {
-          console.error(
-            `Error processing chunk ${chunk.id}:`,
-            error
-          );
-          return null;
-        }
-      })
-      .filter((chunk: any): chunk is RetrievedChunk => chunk !== null);
+        chunksWithScores.push({
+          content: chunk.content,
+          documentTitle: chunk.document.title,
+          documentType: chunk.document.type as string,
+          similarity,
+          metadata: chunk.metadata as Record<string, unknown> | undefined,
+          chunkIndex: chunk.chunkIndex,
+        });
+      } catch (error) {
+        console.error(
+          `Error processing chunk ${chunk.id}:`,
+          error
+        );
+      }
+    }
 
     // Filter by similarity threshold and sort
     const relevantChunks = chunksWithScores
-      .filter((chunk: any) => chunk && chunk.similarity >= opts.similarityThreshold)
-      .sort((a: any, b: any) => b.similarity - a.similarity)
-      .slice(0, opts.topK) as RetrievedChunk[];
+      .filter((chunk) => chunk.similarity >= opts.similarityThreshold)
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, opts.topK);
 
     console.log(
       `Found ${relevantChunks.length} relevant chunks (threshold: ${opts.similarityThreshold})`
@@ -148,7 +147,7 @@ export async function keywordSearch(
       },
     }));
 
-    const chunks = await (prisma as any).documentChunk.findMany({
+    const chunks = await prisma.documentChunk.findMany({
       where: {
         OR: searchConditions,
         document: {
@@ -169,12 +168,12 @@ export async function keywordSearch(
       },
     });
 
-    return chunks.map((chunk: any) => ({
+    return chunks.map((chunk) => ({
       content: chunk.content,
       documentTitle: chunk.document.title,
       documentType: chunk.document.type,
       similarity: 1, // Exact match
-      metadata: chunk.metadata as Record<string, any> | undefined,
+      metadata: chunk.metadata as Record<string, unknown> | undefined,
       chunkIndex: chunk.chunkIndex,
     }));
   } catch (error) {

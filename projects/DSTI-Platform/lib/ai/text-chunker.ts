@@ -6,7 +6,7 @@
 export interface TextChunk {
   content: string;
   chunkIndex: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ChunkingOptions {
@@ -224,8 +224,8 @@ function getOverlapText(text: string, overlapSize: number): string {
 export function extractMetadata(
   text: string,
   chunkIndex: number
-): Record<string, any> {
-  const metadata: Record<string, any> = {
+): Record<string, string | number> {
+  const metadata: Record<string, string | number> = {
     chunkIndex,
     characterCount: text.length,
     wordCount: text.split(/\s+/).length,
