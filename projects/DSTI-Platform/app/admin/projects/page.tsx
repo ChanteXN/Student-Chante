@@ -158,7 +158,7 @@ export default function AdminProjectsPage() {
                           variant="outline"
                           className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
                           onClick={() =>
-                            router.push(`/admin/projects/${project.id}` as any)
+                            router.push(`/admin/projects/${project.id}`)
                           }
                         >
                           <Eye className="h-4 w-4 mr-1" />
@@ -170,7 +170,7 @@ export default function AdminProjectsPage() {
                             variant="outline"
                             className="hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300"
                             onClick={() =>
-                              router.push(`/admin/projects/${project.id}/request` as any)
+                              router.push(`/admin/projects/${project.id}/request`)
                             }
                           >
                             <MessageSquarePlus className="h-4 w-4 mr-1" />

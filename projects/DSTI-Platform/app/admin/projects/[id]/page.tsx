@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   Building,
-  Calendar,
-  MapPin,
   FileText,
   Hash,
   CheckCircle,
@@ -19,7 +17,6 @@ import {
   Download,
   TrendingUp,
   AlertTriangle,
-  Users,
   Briefcase,
   ChevronDown,
   ChevronUp,
@@ -166,9 +163,9 @@ export default function AdminProjectDetailPage({
           <XCircle className="h-16 w-16 text-red-600 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
           <p className="text-gray-600 mb-4">
-            The project you're looking for doesn't exist or you don't have access to it.
+            The project you&apos;re looking for doesn&apos;t exist or you don&apos;t have access to it.
           </p>
-          <Button onClick={() => router.push("/admin/projects" as any)}>
+          <Button onClick={() => router.push("/admin/projects")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Projects
           </Button>
@@ -188,7 +185,7 @@ export default function AdminProjectDetailPage({
         <div>
           <Button
             variant="ghost"
-            onClick={() => router.push("/admin/projects" as any)}
+            onClick={() => router.push("/admin/projects")}
             className="mb-2"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -211,7 +208,7 @@ export default function AdminProjectDetailPage({
             {downloadingPdf ? "Downloading..." : "Download PDF"}
           </Button>
           <Button
-            onClick={() => router.push(`/admin/projects/${resolvedParams.id}/request` as any)}
+            onClick={() => router.push(`/admin/projects/${resolvedParams.id}/request`)}
             className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800"
           >
             <MessageSquarePlus className="h-4 w-4 mr-2" />
@@ -500,7 +497,7 @@ export default function AdminProjectDetailPage({
               <Button
                 variant="outline"
                 className="w-full justify-start hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300"
-                onClick={() => router.push(`/admin/projects/${resolvedParams.id}/request` as any)}
+                onClick={() => router.push(`/admin/projects/${resolvedParams.id}/request`)}
               >
                 <MessageSquarePlus className="h-4 w-4 mr-2" />
                 Request Information
@@ -517,7 +514,7 @@ export default function AdminProjectDetailPage({
               <Button
                 variant="outline"
                 className="w-full justify-start hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300"
-                onClick={() => router.push(`/portal/projects/${resolvedParams.id}/timeline` as any)}
+                onClick={() => router.push(`/portal/projects/${resolvedParams.id}/timeline`)}
               >
                 <Clock className="h-4 w-4 mr-2" />
                 View Timeline

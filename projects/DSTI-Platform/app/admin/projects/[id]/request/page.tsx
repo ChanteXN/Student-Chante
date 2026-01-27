@@ -92,7 +92,7 @@ export default function RequestInfoPage({
           title: "Request Sent",
           description: "Information request has been sent to the applicant successfully",
         });
-        router.push("/admin/projects" as any);
+        router.push("/admin/projects");
       } else {
         const data = await response.json();
         toast({
