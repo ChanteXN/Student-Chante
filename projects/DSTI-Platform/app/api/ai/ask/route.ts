@@ -8,11 +8,11 @@ const USE_MOCK = true;
 export async function POST(request: NextRequest) {
   try {
     // Get session
-    const session = await auth();
+    const _session = await auth();
     
     // Parse request body
     const body = await request.json();
-    const { query, projectId } = body;
+    const { query, projectId: _projectId } = body;
 
     // Validate query
     if (!query || typeof query !== "string" || query.trim().length === 0) {
