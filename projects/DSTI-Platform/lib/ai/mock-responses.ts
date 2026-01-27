@@ -181,7 +181,7 @@ Example questions:
 /**
  * Mock response for /api/ai/improve
  */
-export function mockImproveResponse(sectionKey: string, content: string): MockAIResponse {
+export function mockImproveResponse(sectionKey: string, _content: string): MockAIResponse {
   const improvements: Record<string, string> = {
     uncertainty: `Your uncertainty section could be strengthened by:
 
@@ -317,7 +317,7 @@ export function mockDetectGapsResponse(sections: Record<string, unknown>): {
   }
 
   // Check evidence
-  if (!sections.evidence || (sections.evidence as any[]).length < 3) {
+  if (!sections.evidence || (sections.evidence as unknown[]).length < 3) {
     gaps.push({
       section: "evidence",
       severity: "high" as const,
