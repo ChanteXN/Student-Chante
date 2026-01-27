@@ -302,3 +302,66 @@ model AuditEvent {
   @@index([createdAt])
   @@map("audit_events")
 }
+
+// ============================================================================
+// AI KNOWLEDGE BASE & RAG
+// ============================================================================
+
+enum DocumentType {
+  GUIDELINE_PDF
+  HELP_ARTICLE
+  FAQ
+  EXAMPLE
+  POLICY
+}
+
+model KnowledgeDocument {
+  id          String       @id @default(cuid())
+  title       String
+  type        DocumentType
+  sourceUrl   String?
+  filePath    String?
+  content     String // Full text content
+  metadata    Json? // Additional metadata (author, version, etc.)
+  isActive    Boolean      @default(true)
+  chunkCount  Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  chunks DocumentChunk[]
+
+  @@map("knowledge_documents")
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String
+  chunkIndex Int // Order of chunk in document
+  content    String // Chunk text (500-1000 tokens)
+  embedding  String? // Store embedding as JSON string
+  metadata   Json? // Page number, section, etc.
+  createdAt  DateTime @default(now())
+
+  // Relations
+  document KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, chunkIndex])
+  @@index([documentId])
+  @@map("document_chunks")
+}
+
+model AIConversation {
+  id        String   @id @default(cuid())
+  userId    String?
+  projectId String?
+  query     String
+  response  String
+  context   Json? // Store retrieved chunks info
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([createdAt])
+  @@map("ai_conversations")
+}

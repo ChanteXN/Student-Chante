@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { writeFile, mkdir, unlink } from "fs/promises";
-import { join } from "path";
-import { existsSync } from "fs";
+import { put, del } from "@vercel/blob";
 
 // GET - List all evidence files for a project
 export async function GET(
@@ -89,22 +87,16 @@ export async function POST(
       );
     }
 
-    // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), "public", "uploads", "evidence");
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
     // Generate unique filename
     const timestamp = Date.now();
     const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const uniqueFileName = `${timestamp}_${sanitizedFileName}`;
-    const filePath = join(uploadDir, uniqueFileName);
+    const uniqueFileName = `evidence/${projectId}/${timestamp}_${sanitizedFileName}`;
 
-    // Convert file to buffer and save
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
+    // Upload to Vercel Blob Storage
+    const blob = await put(uniqueFileName, file, {
+      access: "public",
+      addRandomSuffix: false,
+    });
 
     // Store file metadata in database
     const evidenceFile = await prisma.evidenceFile.create({
@@ -113,7 +105,7 @@ export async function POST(
         category: category as never,
         fileName: file.name,
         fileSize: file.size,
-        filePath: `/uploads/evidence/${uniqueFileName}`,
+        filePath: blob.url, // Store the blob URL instead of local path
         mimeType: file.type,
         uploadedBy: session.user.id,
       },
@@ -159,15 +151,12 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Delete physical file
-    const fullPath = join(process.cwd(), "public", evidenceFile.filePath);
+    // Delete from Vercel Blob Storage
     try {
-      if (existsSync(fullPath)) {
-        await unlink(fullPath);
-      }
+      await del(evidenceFile.filePath);
     } catch (error) {
-      console.error("Error deleting physical file:", error);
-      // Continue with database deletion even if file deletion fails
+      console.error("Error deleting blob file:", error);
+      // Continue with database deletion even if blob deletion fails
     }
 
     // Delete from database
