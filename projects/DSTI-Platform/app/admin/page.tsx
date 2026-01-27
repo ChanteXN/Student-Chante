@@ -11,11 +11,9 @@ import {
   XCircle,
   AlertCircle,
   TrendingUp,
-  Users,
   LogOut,
   FolderOpen,
-  ArrowRight,
-  Plus,
+  Users,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
@@ -39,7 +37,7 @@ export default function AdminPage() {
     declined: 0,
     total: 0,
   });
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchStats();
@@ -225,7 +223,7 @@ export default function AdminPage() {
             <Button 
               className="h-auto py-4 flex flex-col items-start gap-2 hover:border-purple-300 hover:shadow-lg transition-all" 
               variant="outline"
-              onClick={() => router.push("/admin/reviewers" as any)}
+              onClick={() => router.push("/admin/reviewers")}
             >
               <div className="flex items-center gap-2 w-full">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">

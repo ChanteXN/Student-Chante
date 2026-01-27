@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Eye, MessageSquare, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { Search, Eye, MessageSquare, CheckCircle2, Clock } from "lucide-react";
 
 interface ReviewRequest {
   id: string;
@@ -40,14 +40,14 @@ const statusColors: Record<string, string> = {
   RESOLVED: "bg-green-100 text-green-700 border-green-300",
 };
 
-const statusIcons: Record<string, any> = {
+const statusIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   PENDING: Clock,
   RESPONDED: CheckCircle2,
   RESOLVED: CheckCircle2,
 };
 
 export default function AdminRequestsPage() {
-  const router = useRouter();
+  const _router = useRouter();
   const [requests, setRequests] = useState<ReviewRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -274,7 +274,8 @@ export default function AdminRequestsPage() {
                             size="sm"
                             variant="outline"
                             className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
-                            onClick={() => router.push(`/admin/requests/${request.id}` as any)}
+                          disabled
+                          title="Request detail page coming soon"
                           >
                             <Eye className="h-4 w-4 mr-1" />
                             View

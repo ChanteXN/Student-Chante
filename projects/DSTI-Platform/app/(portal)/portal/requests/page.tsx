@@ -32,7 +32,7 @@ const statusColors: Record<string, string> = {
   RESOLVED: "bg-green-100 text-green-700 border-green-300",
 };
 
-const statusIcons: Record<string, any> = {
+const statusIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   PENDING: Clock,
   RESPONDED: CheckCircle2,
   RESOLVED: CheckCircle2,
