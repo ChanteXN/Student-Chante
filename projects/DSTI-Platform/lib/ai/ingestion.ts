@@ -3,7 +3,7 @@ type PdfParseFunction = (dataBuffer: Buffer) => Promise<{ text: string; numpages
 let pdfParse: PdfParseFunction | null = null;
 async function getPdfParse() {
   if (!pdfParse) {
-    // @ts-ignore - pdf-parse has export issues with ESM
+    // @ts-expect-error - pdf-parse has export issues with ESM
     pdfParse = (await import("pdf-parse")).default;
   }
   return pdfParse;
@@ -154,7 +154,7 @@ export async function ingestText(
     const cleanedText = cleanText(content);
 
     // Create document record
-    const document = await (prisma as any).knowledgeDocument.create({
+    const document = await prisma.knowledgeDocument.create({
       data: {
         title,
         type,
@@ -201,8 +201,6 @@ export async function ingestText(
           });
         })
       );
-
-      processedChunks += batch.length;
     }
 
     // Update document with chunk count
@@ -256,7 +254,7 @@ function cleanText(text: string): string {
  */
 export async function deleteDocument(documentId: string): Promise<boolean> {
   try {
-    await (prisma as any).knowledgeDocument.delete({
+    await prisma.knowledgeDocument.delete({
       where: { id: documentId },
     });
     return true;
@@ -270,7 +268,7 @@ export async function deleteDocument(documentId: string): Promise<boolean> {
  * List all documents in the knowledge base
  */
 export async function listDocuments() {
-  return (prisma as any).knowledgeDocument.findMany({
+  return prisma.knowledgeDocument.findMany({
     select: {
       id: true,
       title: true,

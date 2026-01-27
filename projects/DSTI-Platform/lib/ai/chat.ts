@@ -67,8 +67,8 @@ If asked for approval predictions, respond:
  */
 export async function generateAIResponse(
   query: string,
-  userId?: string,
-  projectId?: string
+  _userId?: string,
+  _projectId?: string
 ): Promise<AIResponse> {
   try {
     // Validate query
