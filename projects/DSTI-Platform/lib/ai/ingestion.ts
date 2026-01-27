@@ -79,7 +79,6 @@ export async function ingestPDF(
 
     // Generate embeddings in batches
     const batchSize = 20;
-    let processedChunks = 0;
 
     for (let i = 0; i < chunks.length; i += batchSize) {
       const batch = chunks.slice(i, i + batchSize);
@@ -108,9 +107,6 @@ export async function ingestPDF(
           });
         })
       );
-
-      processedChunks += batch.length;
-      console.log(`Processed ${processedChunks}/${chunks.length} chunks`);
     }
 
     // Update document with chunk count
@@ -177,7 +173,7 @@ export async function ingestText(
 
     // Generate embeddings in batches
     const batchSize = 20;
-    let processedChunks = 0;
+
 
     for (let i = 0; i < chunks.length; i += batchSize) {
       const batch = chunks.slice(i, i + batchSize);
