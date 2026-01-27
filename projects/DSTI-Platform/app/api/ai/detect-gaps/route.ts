@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mockDetectGapsResponse } from "@/lib/ai/mock-responses";
 import { auth } from "@/lib/auth";
+import { scanResponseForViolations, sanitizeResponse } from "@/lib/ai/guardrails";
 
 // Using mock responses for testing (OpenAI billing not yet configured)
 const USE_MOCK = true;
@@ -31,7 +32,20 @@ export async function POST(request: NextRequest) {
 
     // Use mock responses for UI testing
     if (USE_MOCK) {
-      const response = mockDetectGapsResponse(sections || { description: projectDescription });
+      let response = mockDetectGapsResponse(sections || { description: projectDescription });
+      
+      // GUARDRAIL: Scan all gap messages for violations
+      if (response.gaps) {
+        response.gaps = response.gaps.map(gap => {
+          const violationCheck = scanResponseForViolations(gap.recommendation);
+          if (violationCheck.hasViolation) {
+            console.log(`[GUARDRAIL] Gap recommendation violations:`, violationCheck.violations);
+            gap.recommendation = sanitizeResponse(gap.recommendation);
+          }
+          return gap;
+        });
+      }
+      
       return NextResponse.json(response);
     }
 

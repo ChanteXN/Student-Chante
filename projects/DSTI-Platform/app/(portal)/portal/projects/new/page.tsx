@@ -639,6 +639,17 @@ export default function NewProjectPage() {
                   })
                 }
               />
+              <AICoPilot
+                sectionKey="objectives"
+                content={uncertaintyData.objectives}
+                onApply={(improvedText) =>
+                  setUncertaintyData({
+                    ...uncertaintyData,
+                    objectives: improvedText,
+                  })
+                }
+                className="mt-2"
+              />
             </div>
           </div>
         )}
@@ -693,6 +704,17 @@ export default function NewProjectPage() {
                   })
                 }
               />
+              <AICoPilot
+                sectionKey="innovation"
+                content={methodologyData.innovationDescription}
+                onApply={(improvedText) =>
+                  setMethodologyData({
+                    ...methodologyData,
+                    innovationDescription: improvedText,
+                  })
+                }
+                className="mt-2"
+              />
             </div>
 
             <div className="space-y-2">
@@ -712,6 +734,17 @@ export default function NewProjectPage() {
                   })
                 }
               />
+              <AICoPilot
+                sectionKey="challenges"
+                content={methodologyData.challengesOvercome}
+                onApply={(improvedText) =>
+                  setMethodologyData({
+                    ...methodologyData,
+                    challengesOvercome: improvedText,
+                  })
+                }
+                className="mt-2"
+              />
             </div>
 
             <div className="space-y-2">
@@ -730,6 +763,17 @@ export default function NewProjectPage() {
                     experimentsPlanned: e.target.value,
                   })
                 }
+              />
+              <AICoPilot
+                sectionKey="experiments"
+                content={methodologyData.experimentsPlanned}
+                onApply={(improvedText) =>
+                  setMethodologyData({
+                    ...methodologyData,
+                    experimentsPlanned: improvedText,
+                  })
+                }
+                className="mt-2"
               />
             </div>
           </div>
@@ -769,6 +813,17 @@ export default function NewProjectPage() {
                     keyPersonnel: e.target.value,
                   })
                 }
+              />
+              <AICoPilot
+                sectionKey="personnel"
+                content={teamData.keyPersonnel}
+                onApply={(improvedText) =>
+                  setTeamData({
+                    ...teamData,
+                    keyPersonnel: improvedText,
+                  })
+                }
+                className="mt-2"
               />
             </div>
 
