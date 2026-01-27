@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { improveApplicationText } from "@/lib/ai/chat";
+import { mockImproveResponse } from "@/lib/ai/mock-responses";
 import { auth } from "@/lib/auth";
+
+// Using mock responses for testing (OpenAI billing not yet configured)
+const USE_MOCK = true;
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { text, context } = body;
+    const { text, context, sectionKey } = body;
 
     // Validate input
     if (!text || typeof text !== "string" || text.trim().length === 0) {
@@ -33,7 +36,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check OpenAI API key
+    // Use mock responses for UI testing
+    if (USE_MOCK) {
+      const section = sectionKey || context || "general";
+      const response = mockImproveResponse(section, text);
+      return NextResponse.json({
+        originalText: text,
+        improvedText: response.answer,
+        suggestions: response.suggestions,
+        sources: response.sources,
+      });
+    }
+
+    // Check OpenAI API key (only when not using mocks)
     if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === "your-openai-api-key-here") {
       return NextResponse.json(
         { 
@@ -44,13 +59,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Improve text
-    const improvedText = await improveApplicationText(text, context || "application section");
+    // Real AI implementation (commented out until billing configured)
+    // const { improveApplicationText } = await import("@/lib/ai/chat");
+    // const improvedText = await improveApplicationText(text, context || "application section");
+    // return NextResponse.json({
+    //   originalText: text,
+    //   improvedText,
+    // });
 
     return NextResponse.json({
-      originalText: text,
-      improvedText,
-    });
+      error: "AI features require OpenAI billing setup"
+    }, { status: 503 });
 
   } catch (error) {
     console.error("Error in /api/ai/improve:", error);

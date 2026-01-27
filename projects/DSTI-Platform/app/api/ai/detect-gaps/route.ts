@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { detectMissingEvidence } from "@/lib/ai/chat";
+import { mockDetectGapsResponse } from "@/lib/ai/mock-responses";
 import { auth } from "@/lib/auth";
+
+// Using mock responses for testing (OpenAI billing not yet configured)
+const USE_MOCK = true;
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,17 +19,23 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { projectDescription } = body;
+    const { projectDescription, sections } = body;
 
     // Validate input
-    if (!projectDescription || typeof projectDescription !== "string" || projectDescription.trim().length === 0) {
+    if (!projectDescription && !sections) {
       return NextResponse.json(
-        { error: "Project description is required" },
+        { error: "Project description or sections required" },
         { status: 400 }
       );
     }
 
-    // Check OpenAI API key
+    // Use mock responses for UI testing
+    if (USE_MOCK) {
+      const response = mockDetectGapsResponse(sections || { description: projectDescription });
+      return NextResponse.json(response);
+    }
+
+    // Check OpenAI API key (only when not using mocks)
     if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === "your-openai-api-key-here") {
       return NextResponse.json(
         { 
@@ -37,13 +46,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Detect missing evidence
-    const missingItems = await detectMissingEvidence(projectDescription);
+    // Real AI implementation (commented out until billing configured)
+    // const { detectMissingEvidence } = await import("@/lib/ai/chat");
+    // const missingItems = await detectMissingEvidence(projectDescription);
+    // return NextResponse.json({
+    //   missingItems,
+    //   count: missingItems.length,
+    // });
 
     return NextResponse.json({
-      missingItems,
-      count: missingItems.length,
-    });
+      error: "AI features require OpenAI billing setup"
+    }, { status: 503 });
 
   } catch (error) {
     console.error("Error in /api/ai/detect-gaps:", error);

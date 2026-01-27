@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateAIResponse } from "@/lib/ai/chat";
+import { mockAskResponse } from "@/lib/ai/mock-responses";
 import { auth } from "@/lib/auth";
+
+// Using mock responses for testing (OpenAI billing not yet configured)
+const USE_MOCK = true;
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,7 +29,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check OpenAI API key
+    // Use mock responses for UI testing
+    if (USE_MOCK) {
+      const response = mockAskResponse(query);
+      return NextResponse.json({
+        answer: response.answer,
+        sources: response.sources,
+        confidence: response.confidence,
+        suggestions: response.suggestions,
+      });
+    }
+
+    // Check OpenAI API key (only when not using mocks)
     if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === "your-openai-api-key-here") {
       return NextResponse.json(
         { 
@@ -37,22 +51,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate response
-    const response = await generateAIResponse(
-      query,
-      session?.user?.id,
-      projectId
-    );
+    // Real AI implementation (commented out until billing configured)
+    // const { generateAIResponse } = await import("@/lib/ai/chat");
+    // const response = await generateAIResponse(query, session?.user?.id, projectId);
+    // return NextResponse.json({
+    //   answer: response.answer,
+    //   sources: response.sources.map((source) => ({
+    //     title: source.documentTitle,
+    //     type: source.documentType,
+    //     similarity: Math.round(source.similarity * 100),
+    //     excerpt: source.content.substring(0, 200) + "...",
+    //   })),
+    // });
 
     return NextResponse.json({
-      answer: response.answer,
-      sources: response.sources.map((source) => ({
-        title: source.documentTitle,
-        type: source.documentType,
-        similarity: Math.round(source.similarity * 100),
-        excerpt: source.content.substring(0, 200) + "...",
-      })),
-    });
+      error: "AI features require OpenAI billing setup"
+    }, { status: 503 });
 
   } catch (error) {
     console.error("Error in /api/ai/ask:", error);
