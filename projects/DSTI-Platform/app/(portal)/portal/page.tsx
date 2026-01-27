@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, FolderOpen, Clock, Bell, Plus, ArrowRight, CheckCircle, Sparkles } from "lucide-react";
+import { FileText, FolderOpen, Clock, Bell, Plus, ArrowRight, CheckCircle, Sparkles, MessageSquare } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -23,11 +23,18 @@ interface RecentProject {
   updatedAt: string;
 }
 
+interface PendingRequestsData {
+  count: number;
+  projectId: string | null;
+  projectTitle: string | null;
+}
+
 export default function PortalPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [stats, setStats] = useState<ProjectStats | null>(null);
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<PendingRequestsData>({ count: 0, projectId: null, projectTitle: null });
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -48,11 +55,36 @@ export default function PortalPage() {
         .then((data) => {
           if (Array.isArray(data)) {
             setRecentProjects(data.slice(0, 5));
+            // Check for pending requests in submitted projects
+            checkPendingRequests(data);
           }
         })
         .catch((error) => console.error("Error fetching projects:", error));
     }
   }, [status, router]);
+
+  const checkPendingRequests = async (projects: RecentProject[]) => {
+    const submittedProjects = projects.filter(p => p.status !== 'DRAFT');
+    if (submittedProjects.length === 0) return;
+
+    // Check first submitted project for pending requests
+    const firstProject = submittedProjects[0];
+    try {
+      const res = await fetch(`/api/requests/list?projectId=${firstProject.id}&status=PENDING`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.requests && data.requests.length > 0) {
+          setPendingRequests({
+            count: data.requests.length,
+            projectId: firstProject.id,
+            projectTitle: firstProject.title
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error checking pending requests:", error);
+    }
+  };
 
   if (status === "loading") {
     return (
@@ -195,6 +227,27 @@ export default function PortalPage() {
                 Manage existing projects
               </span>
             </Button>
+
+            {pendingRequests.count > 0 && pendingRequests.projectId && (
+              <Button 
+                className="h-auto py-4 flex flex-col items-start gap-2 hover:border-orange-300 hover:shadow-lg transition-all relative" 
+                variant="outline"
+                onClick={() => router.push(`/portal/projects/${pendingRequests.projectId}/requests`)}
+              >
+                <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
+                  {pendingRequests.count}
+                </div>
+                <div className="flex items-center gap-2 w-full">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                    <MessageSquare className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="font-semibold">Information Requests</span>
+                </div>
+                <span className="text-xs text-muted-foreground text-left">
+                  {pendingRequests.count} pending request{pendingRequests.count > 1 ? 's' : ''}
+                </span>
+              </Button>
+            )}
 
             <Button className="h-auto py-4 flex flex-col items-start gap-2 hover:border-green-300 hover:shadow-lg transition-all" variant="outline">
               <div className="flex items-center gap-2 w-full">
