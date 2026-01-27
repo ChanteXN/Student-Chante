@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mockAskResponse } from "@/lib/ai/mock-responses";
 import { auth } from "@/lib/auth";
+import {
+  containsForbiddenContent,
+  getRefusalResponse,
+  scanResponseForViolations,
+  sanitizeResponse,
+} from "@/lib/ai/guardrails";
 
 // Using mock responses for testing (OpenAI billing not yet configured)
 const USE_MOCK = true;
@@ -29,9 +35,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // GUARDRAIL: Check for forbidden content in query
+    const forbiddenCheck = containsForbiddenContent(query);
+    if (forbiddenCheck.isForbidden && forbiddenCheck.category) {
+      console.log(`[GUARDRAIL] Blocked forbidden query: "${forbiddenCheck.matchedTerm}" in category ${forbiddenCheck.category}`);
+      const refusal = getRefusalResponse(forbiddenCheck.category);
+      return NextResponse.json({
+        answer: refusal.answer,
+        sources: [
+          {
+            title: "DSTI Compliance Guidelines",
+            type: "policy",
+            similarity: 100,
+            excerpt: "For tax calculations, please consult with a registered tax practitioner.",
+          },
+        ],
+        confidence: "high",
+        suggestions: refusal.relatedQuestions,
+        guardrailTriggered: true,
+      });
+    }
+
     // Use mock responses for UI testing
     if (USE_MOCK) {
-      const response = mockAskResponse(query);
+      let response = mockAskResponse(query);
+      
+      // GUARDRAIL: Scan response for violations
+      const violationCheck = scanResponseForViolations(response.answer);
+      if (violationCheck.hasViolation) {
+        console.log(`[GUARDRAIL] Response violations detected:`, violationCheck.violations);
+        response.answer = sanitizeResponse(response.answer);
+      }
+      
       return NextResponse.json({
         answer: response.answer,
         sources: response.sources,

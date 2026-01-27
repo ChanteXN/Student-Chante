@@ -8,11 +8,12 @@ import { Loader2, Send, Sparkles, BookOpen } from "lucide-react";
 
 interface AIResponse {
   answer: string;
-  confidence: "high" | "medium" | "low";
+  confidence: number | "high" | "medium" | "low"; // Can be number (0-1) or string
   sources: Array<{
     title: string;
     type: string;
     excerpt: string;
+    similarity?: number;
   }>;
   suggestions?: string[];
 }
@@ -65,6 +66,14 @@ export default function AIAssistantPage() {
     high: "text-green-600 bg-green-50",
     medium: "text-yellow-600 bg-yellow-50",
     low: "text-gray-600 bg-gray-50",
+  };
+
+  // Convert numeric confidence to label
+  const getConfidenceLabel = (confidence: number | "high" | "medium" | "low"): "high" | "medium" | "low" => {
+    if (typeof confidence === "string") return confidence;
+    if (confidence >= 0.8) return "high";
+    if (confidence >= 0.5) return "medium";
+    return "low";
   };
 
   return (
@@ -160,10 +169,10 @@ export default function AIAssistantPage() {
                 <CardTitle>Answer</CardTitle>
                 <span
                   className={`text-xs px-2 py-1 rounded ${
-                    confidenceColor[response.confidence]
+                    confidenceColor[getConfidenceLabel(response.confidence)]
                   }`}
                 >
-                  {response.confidence.toUpperCase()} CONFIDENCE
+                  {getConfidenceLabel(response.confidence).toUpperCase()} CONFIDENCE
                 </span>
               </div>
             </CardHeader>
