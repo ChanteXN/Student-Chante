@@ -31,6 +31,11 @@ export async function GET(_req: NextRequest) {
             name: true,
           },
         },
+        evidenceFiles: {
+          select: {
+            category: true,
+          },
+        },
       },
       orderBy: { submittedAt: "desc" },
     });
