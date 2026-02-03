@@ -383,3 +383,34 @@ model AIConversation {
   @@index([createdAt])
   @@map("ai_conversations")
 }
+
+// ============================================================================
+// PROGRESS REPORTING (Post-Approval Monitoring)
+// ============================================================================
+
+enum ProgressReportStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  ACCEPTED
+}
+
+model ProgressReport {
+  id              String               @id @default(cuid())
+  projectId       String
+  reportingPeriod String // e.g., "Q1 2026", "Annual 2025"
+  outcomes        String // Outcomes achieved during period
+  milestones      String // Milestones reached
+  staffing        String // Staffing updates
+  learnings       String // Key learnings and insights
+  dueDate         DateTime?
+  submittedAt     DateTime?
+  status          ProgressReportStatus @default(DRAFT)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("progress_reports")
+}
