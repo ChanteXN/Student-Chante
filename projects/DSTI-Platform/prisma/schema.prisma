@@ -272,6 +272,17 @@ model ReviewerAssignment {
   assignedAt  DateTime  @default(now())
   completedAt DateTime?
 
+  // Rubric Scoring (1-5 scale)
+  section11dScore    Int? // Section 11D compliance
+  uncertaintyScore   Int? // Uncertainty clarity
+  innovationScore    Int? // Innovation significance
+  budgetScore        Int? // Budget reasonableness
+  timelineScore      Int? // Timeline feasibility
+
+  // Recommendation
+  recommendation     String? // APPROVE, DECLINE, REQUEST_INFO
+  recommendationNote String? // Explanation for recommendation
+
   // Relations
   project  Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
   reviewer User           @relation(fields: [reviewerId], references: [id], onDelete: Cascade)

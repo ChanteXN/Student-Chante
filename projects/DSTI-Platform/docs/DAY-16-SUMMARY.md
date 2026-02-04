@@ -2,7 +2,7 @@
 
 **Date:** February 3, 2026  
 **Sprint Week:** 4 of 4  
-**Status:** ✅ Complete  
+**Status:**  Complete  
 **Commit:** `dad4245`
 
 ---
@@ -595,7 +595,7 @@ const uploadedCategories = (project.evidenceFiles || []).map(f => f.category);
 
 ### Manual Testing Completed
 
-✅ **Stats Cards:**
+ **Stats Cards:**
 - [ ] Total count matches project count
 - [ ] Submitted count matches SUBMITTED status filter
 - [ ] Under Review count matches UNDER_REVIEW status filter
@@ -603,7 +603,7 @@ const uploadedCategories = (project.evidenceFiles || []).map(f => f.category);
 - [ ] High Risk count matches projects with HIGH risk level
 - [ ] Counts update when filters applied
 
-✅ **Status Filter:**
+ **Status Filter:**
 - [ ] ALL button shows all projects
 - [ ] SUBMITTED button shows only SUBMITTED projects
 - [ ] UNDER_REVIEW button shows only UNDER_REVIEW projects
@@ -612,27 +612,27 @@ const uploadedCategories = (project.evidenceFiles || []).map(f => f.category);
 - [ ] DECLINED button shows only DECLINED projects
 - [ ] Active button has blue fill, inactive has outline
 
-✅ **Readiness Filter:**
+ **Readiness Filter:**
 - [ ] "All" shows all projects
 - [ ] "≥ 40%" shows only projects with readiness ≥ 40%
 - [ ] "≥ 60%" shows only projects with readiness ≥ 60%
 - [ ] "≥ 80%" shows only projects with readiness ≥ 80%
 - [ ] Null readiness scores treated as 0%
 
-✅ **Missing Evidence Filter:**
+ **Missing Evidence Filter:**
 - [ ] Checkbox checked shows only projects with missing evidence
 - [ ] Checkbox unchecked shows all projects
 - [ ] Badge appears on projects with missing evidence
 - [ ] Badge count matches missing evidence count
 
-✅ **Search Filter:**
+ **Search Filter:**
 - [ ] Searches project title (case-insensitive)
 - [ ] Searches organization name (case-insensitive)
 - [ ] Searches case reference (case-insensitive)
 - [ ] Shows "Clear search" button when search active
 - [ ] Empty state shows "Try adjusting your search criteria"
 
-✅ **Sorting:**
+ **Sorting:**
 - [ ] Project Title sorts alphabetically (A-Z, Z-A)
 - [ ] Status sorts alphabetically (A-Z, Z-A)
 - [ ] Readiness sorts numerically (low-high, high-low)
@@ -641,7 +641,7 @@ const uploadedCategories = (project.evidenceFiles || []).map(f => f.category);
 - [ ] Sort direction toggles on repeated clicks
 - [ ] Sorting works with filters applied
 
-✅ **Readiness Score Display:**
+ **Readiness Score Display:**
 - [ ] ≥80% shows green badge
 - [ ] 60-79% shows blue badge
 - [ ] 40-59% shows amber badge
@@ -649,36 +649,36 @@ const uploadedCategories = (project.evidenceFiles || []).map(f => f.category);
 - [ ] Null shows gray badge with 0%
 - [ ] TrendingUp icon appears in badge
 
-✅ **Risk Indicators:**
+ **Risk Indicators:**
 - [ ] HIGH risk shows red alert icon + "HIGH" text
 - [ ] MEDIUM risk shows amber alert icon + "MEDIUM" text
 - [ ] LOW risk shows green alert icon + "LOW" text
 - [ ] Risk level matches business logic (evidence + score)
 
-✅ **Missing Evidence Badges:**
+ **Missing Evidence Badges:**
 - [ ] Badge appears when evidence missing
 - [ ] Badge shows correct count (1, 2, or 3 missing)
 - [ ] Badge has red color (bg-red-50, text-red-700)
 - [ ] FileText icon appears in badge
 
-✅ **Relative Timestamps:**
+ **Relative Timestamps:**
 - [ ] Shows "X days ago" format
 - [ ] Shows "X hours ago" format
 - [ ] Shows "a month ago" format
 - [ ] Shows "—" for null submitted date
 
-✅ **Actions:**
+ **Actions:**
 - [ ] "View" button navigates to project detail page
 - [ ] "Request Info" button appears for non-DRAFT projects
 - [ ] "Request Info" button navigates to request form
 - [ ] Buttons have hover effects (color change)
 
-✅ **Empty States:**
+ **Empty States:**
 - [ ] No projects: Shows "Applications will appear here once submitted"
 - [ ] No search results: Shows "Try adjusting your search criteria"
 - [ ] FolderOpen icon appears in empty state
 
-✅ **API:**
+ **API:**
 - [ ] Returns readinessScore for all projects
 - [ ] Returns evidenceFiles array for all projects
 - [ ] Excludes DRAFT projects
@@ -821,22 +821,22 @@ if (missingEvidence >= 2 || score < 40) // ← Not configurable
 ## Accessibility Improvements
 
 ### Keyboard Navigation
-- ✅ All buttons focusable via Tab key
-- ✅ Filter buttons have keyboard interaction
-- ✅ Dropdown has native keyboard support
-- ✅ Checkbox has native keyboard support
+-  All buttons focusable via Tab key
+-  Filter buttons have keyboard interaction
+-  Dropdown has native keyboard support
+-  Checkbox has native keyboard support
 
 ### Screen Reader Support
-- ✅ Semantic HTML (table, thead, tbody)
-- ✅ Button labels descriptive ("View", "Request Info")
-- ✅ Badge text readable ("HIGH", "MEDIUM", "LOW")
-- ⚠️ Sort buttons could use aria-label (future improvement)
-- ⚠️ Filter state could use aria-live region (future improvement)
+-  Semantic HTML (table, thead, tbody)
+-  Button labels descriptive ("View", "Request Info")
+-  Badge text readable ("HIGH", "MEDIUM", "LOW")
+-  Sort buttons could use aria-label (future improvement)
+-  Filter state could use aria-live region (future improvement)
 
 ### Color Contrast
-- ✅ All text meets WCAG AA standards
-- ✅ Badges use sufficient contrast ratios
-- ✅ Icons paired with text labels (not color-only)
+-  All text meets WCAG AA standards
+-  Badges use sufficient contrast ratios
+-  Icons paired with text labels (not color-only)
 
 ---
 
@@ -878,7 +878,7 @@ All data already exists in Project model (readinessScore, evidenceFiles relation
 
 ## Success Metrics
 
-### Day 16 Goals ✅
+### Day 16 Goals 
 
 - [x] Admin can view all submitted applications
 - [x] Admin can filter by status, readiness, and missing evidence
@@ -889,7 +889,7 @@ All data already exists in Project model (readinessScore, evidenceFiles relation
 - [x] Dashboard provides stats overview
 - [x] UI is clean, professional, and intuitive
 
-### Performance Targets ✅
+### Performance Targets 
 
 - [x] Page load time < 2 seconds (with 100 projects)
 - [x] Filter updates instant (<100ms)
@@ -903,12 +903,11 @@ All data already exists in Project model (readinessScore, evidenceFiles relation
 
 ### Week 4 Status
 
-- ✅ **Day 15:** Progress Reporting v1 (Complete)
-- ✅ **Day 16:** Admin Screening Dashboard (Complete) ← YOU ARE HERE
-- ⏳ **Day 17:** Reviewer Workspace (Next)
-- ⏳ **Day 18:** Decision Capture + Letter Template
-- ⏳ **Day 19:** QA + Security + Accessibility
-- ⏳ **Day 20:** Final Deploy + Demo + Handover
+-  **Day 16:** Admin Screening Dashboard (Complete) 
+-  **Day 17:** Reviewer Workspace (Next)
+-  **Day 18:** Decision Capture + Letter Template
+-  **Day 19:** QA + Security + Accessibility
+-  **Day 20:** Final Deploy + Demo + Handover
 
 **Deadline:** February 7, 2026 (4 days remaining)
 
@@ -955,7 +954,7 @@ The dashboard provides the foundation for efficient case management and sets up 
 
 ---
 
-**Status:** ✅ Day 16 Complete  
+**Status:**  Day 16 Complete  
 **Commit:** `dad4245`  
 **Branch:** development  
-**Lines Changed:** +319 / -67 (2 files)
+

@@ -14,8 +14,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Eye, MessageSquarePlus, FolderOpen, ArrowUpDown, AlertCircle, FileText, TrendingUp, Filter } from "lucide-react";
+import { Search, Eye, MessageSquarePlus, FolderOpen, ArrowUpDown, AlertCircle, FileText, TrendingUp, Filter, UserPlus, ClipboardCheck } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Project {
   id: string;
@@ -30,6 +37,17 @@ interface Project {
   evidenceFiles?: {
     category: string;
   }[];
+  reviewerAssignments?: {
+    id: string;
+    reviewerId: string;
+  }[];
+}
+
+interface Reviewer {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
 }
 
 const statusColors: Record<string, string> = {
@@ -53,13 +71,17 @@ export default function AdminProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [readinessFilter, setReadinessFilter] = useState<number>(0);
+  const [readinessFilter, setReadinessFilter] = useState<string>("0");
   const [showOnlyWithMissingEvidence, setShowOnlyWithMissingEvidence] = useState(false);
   const [sortField, setSortField] = useState<SortField>("submittedAt");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [reviewers, setReviewers] = useState<Reviewer[]>([]);
+  const [selectedReviewers, setSelectedReviewers] = useState<Record<string, string>>({});
+  const [assigning, setAssigning] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchProjects();
+    fetchReviewers();
   }, []);
 
   const fetchProjects = async () => {
@@ -73,6 +95,48 @@ export default function AdminProjectsPage() {
       console.error("Error fetching projects:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchReviewers = async () => {
+    try {
+      const response = await fetch("/api/admin/reviewers");
+      if (response.ok) {
+        const data = await response.json();
+        setReviewers(data.reviewers || []);
+      }
+    } catch (error) {
+      console.error("Error fetching reviewers:", error);
+    }
+  };
+
+  const handleAssignReviewer = async (projectId: string) => {
+    const reviewerId = selectedReviewers[projectId];
+    if (!reviewerId) return;
+
+    setAssigning({ ...assigning, [projectId]: true });
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/assign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviewerId }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message || "Reviewer assigned successfully");
+        // Clear selection after assignment
+        setSelectedReviewers({ ...selectedReviewers, [projectId]: "" });
+      } else {
+        const data = await response.json();
+        alert(data.error || "Failed to assign reviewer");
+      }
+    } catch (error) {
+      console.error("Error assigning reviewer:", error);
+      alert("Failed to assign reviewer");
+    } finally {
+      setAssigning({ ...assigning, [projectId]: false });
     }
   };
 
@@ -121,7 +185,8 @@ export default function AdminProjectsPage() {
       if (statusFilter !== "ALL" && project.status !== statusFilter) return false;
 
       // Readiness filter
-      if (readinessFilter > 0 && (project.readinessScore || 0) < readinessFilter) return false;
+      const minReadiness = Number(readinessFilter);
+      if (minReadiness > 0 && (project.readinessScore || 0) < minReadiness) return false;
 
       // Missing evidence filter
       if (showOnlyWithMissingEvidence && getMissingEvidence(project).length === 0) return false;
@@ -255,13 +320,13 @@ export default function AdminProjectsPage() {
                 <label className="font-medium text-gray-700">Min Readiness:</label>
                 <select
                   value={readinessFilter}
-                  onChange={(e) => setReadinessFilter(Number(e.target.value))}
+                  onChange={(e) => setReadinessFilter(e.target.value)}
                   className="border border-gray-300 rounded px-2 py-1"
                 >
-                  <option value={0}>All</option>
-                  <option value={40}>≥ 40%</option>
-                  <option value={60}>≥ 60%</option>
-                  <option value={80}>≥ 80%</option>
+                  <option value="0">All</option>
+                  <option value="40">≥ 40%</option>
+                  <option value="60">≥ 60%</option>
+                  <option value="80">≥ 80%</option>
                 </select>
               </div>
 
@@ -402,27 +467,73 @@ export default function AdminProjectsPage() {
                             ? formatDistanceToNow(new Date(project.submittedAt), { addSuffix: true })
                             : "—"}
                         </TableCell>
-                        <TableCell className="text-right space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
-                            onClick={() => router.push(`/admin/projects/${project.id}`)}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                          {project.status !== "DRAFT" && (
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2 flex-wrap">
                             <Button
                               size="sm"
                               variant="outline"
-                              className="hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300"
-                              onClick={() => router.push(`/admin/projects/${project.id}/request`)}
+                              className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
+                              onClick={() => router.push(`/admin/projects/${project.id}`)}
                             >
-                              <MessageSquarePlus className="h-4 w-4 mr-1" />
-                              Request Info
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
                             </Button>
-                          )}
+                            {project.reviewerAssignments && project.reviewerAssignments.length > 0 && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300"
+                                onClick={() => router.push(`/admin/review/${project.id}`)}
+                              >
+                                <ClipboardCheck className="h-4 w-4 mr-1" />
+                                Review
+                              </Button>
+                            )}
+                            {project.status !== "DRAFT" && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300"
+                                  onClick={() => router.push(`/admin/projects/${project.id}/request`)}
+                                >
+                                  <MessageSquarePlus className="h-4 w-4 mr-1" />
+                                  Request Info
+                                </Button>
+                                
+                                {/* Assign Reviewer Dropdown and Button */}
+                                <div className="flex items-center gap-1">
+                                  <Select
+                                    value={selectedReviewers[project.id] || ""}
+                                    onValueChange={(value) =>
+                                      setSelectedReviewers({ ...selectedReviewers, [project.id]: value })
+                                    }
+                                  >
+                                    <SelectTrigger className="w-[150px] h-8 text-xs">
+                                      <SelectValue placeholder="Select reviewer" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {reviewers.map((reviewer) => (
+                                        <SelectItem key={reviewer.id} value={reviewer.id} className="text-xs">
+                                          {reviewer.name || reviewer.email}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="hover:bg-green-50 hover:text-green-700 hover:border-green-300 h-8"
+                                    onClick={() => handleAssignReviewer(project.id)}
+                                    disabled={!selectedReviewers[project.id] || assigning[project.id]}
+                                  >
+                                    <UserPlus className="h-4 w-4 mr-1" />
+                                    {assigning[project.id] ? "Assigning..." : "Assign"}
+                                  </Button>
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     );

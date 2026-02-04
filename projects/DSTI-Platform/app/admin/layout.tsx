@@ -14,7 +14,8 @@ import {
   BarChart3,
   HelpCircle,
   MessageSquare,
-  ClipboardList
+  ClipboardList,
+  ClipboardCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,6 +38,11 @@ const navigationItems: NavItem[] = [
     icon: FolderOpen,
   },
   {
+    title: "My Reviews",
+    href: "/admin/reviews",
+    icon: ClipboardCheck,
+  },
+  {
     title: "Information Requests",
     href: "/admin/requests",
     icon: MessageSquare,
@@ -50,11 +56,6 @@ const navigationItems: NavItem[] = [
     title: "Applications",
     href: "/admin/applications",
     icon: FileText,
-  },
-  {
-    title: "Reviewers",
-    href: "/admin/reviewers",
-    icon: Users,
   },
 ];
 

@@ -36,6 +36,12 @@ export async function GET(_req: NextRequest) {
             category: true,
           },
         },
+        reviewerAssignments: {
+          select: {
+            id: true,
+            reviewerId: true,
+          },
+        },
       },
       orderBy: { submittedAt: "desc" },
     });
