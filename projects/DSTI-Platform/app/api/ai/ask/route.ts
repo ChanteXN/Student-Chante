@@ -9,7 +9,7 @@ import {
 } from "@/lib/ai/guardrails";
 
 // Using mock responses for testing (OpenAI billing not yet configured)
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 export async function POST(request: NextRequest) {
   try {
@@ -86,22 +86,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Real AI implementation (commented out until billing configured)
-    // const { generateAIResponse } = await import("@/lib/ai/chat");
-    // const response = await generateAIResponse(query, session?.user?.id, projectId);
-    // return NextResponse.json({
-    //   answer: response.answer,
-    //   sources: response.sources.map((source) => ({
-    //     title: source.documentTitle,
-    //     type: source.documentType,
-    //     similarity: Math.round(source.similarity * 100),
-    //     excerpt: source.content.substring(0, 200) + "...",
-    //   })),
-    // });
-
+    // Real AI implementation
+    const { generateAIResponse } = await import("@/lib/ai/chat");
+    const response = await generateAIResponse(query, _session?.user?.id, _projectId);
+    
+    // GUARDRAIL: Scan response for violations
+    const violationCheck = scanResponseForViolations(response.answer);
+    const sanitizedAnswer = violationCheck.hasViolation ? sanitizeResponse(response.answer) : response.answer;
+    
+    if (violationCheck.hasViolation) {
+      console.log(`[GUARDRAIL] Response violations detected:`, violationCheck.violations);
+    }
+    
+    // Deduplicate sources by document title (keep highest similarity)
+    const uniqueSources = new Map<string, typeof response.sources[0]>();
+    for (const source of response.sources) {
+      const existing = uniqueSources.get(source.documentTitle);
+      if (!existing || source.similarity > existing.similarity) {
+        uniqueSources.set(source.documentTitle, source);
+      }
+    }
+    
     return NextResponse.json({
-      error: "AI features require OpenAI billing setup"
-    }, { status: 503 });
+      answer: sanitizedAnswer,
+      sources: Array.from(uniqueSources.values()).map((source) => {
+        // Extract a more meaningful excerpt (first 150 chars, trim to word boundary)
+        let excerpt = source.content.substring(0, 150).trim();
+        const lastSpace = excerpt.lastIndexOf(' ');
+        if (lastSpace > 100) {
+          excerpt = excerpt.substring(0, lastSpace);
+        }
+        return {
+          title: source.documentTitle,
+          type: source.documentType,
+          similarity: Math.round(source.similarity * 100),
+          excerpt: excerpt + "...",
+        };
+      }),
+    });
 
   } catch (error) {
     console.error("Error in /api/ai/ask:", error);

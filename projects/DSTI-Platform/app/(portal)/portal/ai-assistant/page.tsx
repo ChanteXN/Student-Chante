@@ -4,7 +4,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send, Sparkles, BookOpen } from "lucide-react";
+import { Loader2, Send, Sparkles, BookOpen, ExternalLink } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface AIResponse {
   answer: string;
@@ -23,6 +30,9 @@ export default function AIAssistantPage() {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<AIResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSource, setSelectedSource] = useState<AIResponse["sources"][0] | null>(null);
+  const [fullContent, setFullContent] = useState<string>("");
+  const [loadingSource, setLoadingSource] = useState(false);
 
   const handleAsk = async () => {
     if (!query.trim()) return;
@@ -74,6 +84,24 @@ export default function AIAssistantPage() {
     if (confidence >= 0.8) return "high";
     if (confidence >= 0.5) return "medium";
     return "low";
+  };
+
+  const handleSourceClick = async (source: AIResponse["sources"][0]) => {
+    setSelectedSource(source);
+    setLoadingSource(true);
+    setFullContent("");
+
+    try {
+      // Fetch full document content
+      const res = await fetch(`/api/knowledge-base/document?title=${encodeURIComponent(source.title)}`);
+      if (!res.ok) throw new Error("Failed to load document");
+      const data = await res.json();
+      setFullContent(data.content || "No additional content available.");
+    } catch (err) {
+      setFullContent("Unable to load full document content.");
+    } finally {
+      setLoadingSource(false);
+    }
   };
 
   return (
@@ -198,23 +226,71 @@ export default function AIAssistantPage() {
               <CardContent>
                 <div className="space-y-4">
                   {response.sources.map((source, index) => (
-                    <div
+                    <button
                       key={index}
-                      className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                      onClick={() => handleSourceClick(source)}
+                      className="w-full p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 hover:border-blue-300 transition-colors text-left group"
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-semibold text-sm">{source.title}</h4>
-                        <span className="text-xs text-gray-500 px-2 py-1 bg-white rounded">
-                          {source.type}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold text-sm group-hover:text-blue-600">
+                            {source.title}
+                          </h4>
+                          <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-blue-600" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {source.similarity && (
+                            <span className="text-xs text-blue-600 font-medium">
+                              {source.similarity}% match
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-500 px-2 py-1 bg-white rounded">
+                            {source.type}
+                          </span>
+                        </div>
                       </div>
                       <p className="text-sm text-gray-600">{source.excerpt}</p>
-                    </div>
+                      <p className="text-xs text-blue-600 mt-2 group-hover:underline">
+                        Click to view full document →
+                      </p>
+                    </button>
                   ))}
                 </div>
               </CardContent>
             </Card>
           )}
+
+      {/* Source Detail Modal */}
+      <Dialog open={!!selectedSource} onOpenChange={() => setSelectedSource(null)}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedSource?.title}</DialogTitle>
+            <DialogDescription>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs px-2 py-1 bg-gray-100 rounded">
+                  {selectedSource?.type}
+                </span>
+                {selectedSource?.similarity && (
+                  <span className="text-xs text-blue-600 font-medium">
+                    {selectedSource.similarity}% relevance to your question
+                  </span>
+                )}
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            {loadingSource ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+              </div>
+            ) : (
+              <div className="prose prose-sm max-w-none">
+                <div className="whitespace-pre-wrap text-sm">{fullContent}</div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
           {/* Suggestions */}
           {response.suggestions && response.suggestions.length > 0 && (

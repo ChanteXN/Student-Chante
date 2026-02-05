@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { scanResponseForViolations, sanitizeResponse } from "@/lib/ai/guardrails";
 
 // Using mock responses for testing (OpenAI billing not yet configured)
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,17 +68,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Real AI implementation (commented out until billing configured)
-    // const { improveApplicationText } = await import("@/lib/ai/chat");
-    // const improvedText = await improveApplicationText(text, context || "application section");
-    // return NextResponse.json({
-    //   originalText: text,
-    //   improvedText,
-    // });
-
+    // Real AI implementation
+    const { improveApplicationText } = await import("@/lib/ai/chat");
+    const improvedText = await improveApplicationText(text, context || "application section");
+    
+    // GUARDRAIL: Scan improved text for violations
+    const violationCheck = scanResponseForViolations(improvedText);
+    const sanitizedText = violationCheck.hasViolation ? sanitizeResponse(improvedText) : improvedText;
+    
+    if (violationCheck.hasViolation) {
+      console.log(`[GUARDRAIL] Improve response violations:`, violationCheck.violations);
+    }
+    
     return NextResponse.json({
-      error: "AI features require OpenAI billing setup"
-    }, { status: 503 });
+      originalText: text,
+      improvedText: sanitizedText,
+    });
 
   } catch (error) {
     console.error("Error in /api/ai/improve:", error);
