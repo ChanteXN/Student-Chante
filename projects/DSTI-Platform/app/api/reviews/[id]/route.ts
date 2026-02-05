@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -25,6 +25,7 @@ export async function PUT(
       );
     }
 
+    const { id } = await params;
     const {
       section11dScore,
       uncertaintyScore,
@@ -37,7 +38,7 @@ export async function PUT(
 
     // Verify assignment exists and belongs to current user
     const assignment = await prisma.reviewerAssignment.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!assignment) {
@@ -57,7 +58,7 @@ export async function PUT(
 
     // Update the assignment with scores and recommendation
     const updatedAssignment = await prisma.reviewerAssignment.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         section11dScore: section11dScore !== null ? Number(section11dScore) : null,
         uncertaintyScore: uncertaintyScore !== null ? Number(uncertaintyScore) : null,

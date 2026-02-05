@@ -44,7 +44,6 @@ export async function GET(_req: NextRequest) {
             recommendation: true,
           },
         },
-        // @ts-expect-error - Decision model exists but TS types not updated
         decision: {
           select: {
             outcome: true,

@@ -37,10 +37,10 @@ export async function GET(
             },
           },
         },
-        // @ts-expect-error - Decision relation exists but TS server hasn't reloaded
+    
         decision: true,
       },
-    }) as any;
+    });
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });

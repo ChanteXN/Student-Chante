@@ -21,7 +21,6 @@ export async function GET(
     const project = await prisma.project.findUnique({
       where: { id: resolvedParams.id },
       include: {
-        // @ts-expect-error - Decision relation exists but TS server hasn't reloaded
         decision: true,
         organisation: {
           select: {
@@ -30,7 +29,7 @@ export async function GET(
           },
         },
       },
-    }) as any;
+    });
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });

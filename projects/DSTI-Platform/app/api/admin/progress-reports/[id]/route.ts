@@ -9,7 +9,7 @@ import { ProgressReportStatus } from "@prisma/client";
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -21,8 +21,9 @@ export async function GET(
       );
     }
 
+    const { id } = await params;
     const report = await prisma.progressReport.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         project: {
           select: {
@@ -73,7 +74,7 @@ export async function GET(
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -84,6 +85,8 @@ export async function PUT(
         { status: 403 }
       );
     }
+
+    const { id } = await params;
 
     const body = await req.json();
     const { action, feedback } = body;
@@ -106,7 +109,7 @@ export async function PUT(
 
     // Fetch the report
     const report = await prisma.progressReport.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         project: {
           select: {
@@ -131,7 +134,7 @@ export async function PUT(
 
     // Update the report
     const updatedReport = await prisma.progressReport.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: newStatus as any,
         reviewedBy: session.user.email,

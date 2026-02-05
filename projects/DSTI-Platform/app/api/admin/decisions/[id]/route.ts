@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-// @ts-expect-error - DecisionOutcome exists in generated client but TS server hasn't reloaded
 import { DecisionOutcome, ProjectStatus } from "@prisma/client";
 
 export async function POST(
@@ -39,10 +38,9 @@ export async function POST(
     const project = await prisma.project.findUnique({
       where: { id: resolvedParams.id },
       include: {
-        // @ts-expect-error - Decision relation exists but TS server hasn't reloaded
         decision: true,
       },
-    }) as any;
+    });
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
@@ -63,7 +61,6 @@ export async function POST(
     // Create decision and update project status in a transaction
     const result = await prisma.$transaction(async (tx) => {
       // Create the decision
-      // @ts-expect-error - Decision model exists but TS server hasn't reloaded
       const decision = await tx.decision.create({
         data: {
           projectId: resolvedParams.id,
@@ -134,7 +131,6 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    // @ts-expect-error - Decision model exists but TS server hasn't reloaded
     const decision = await prisma.decision.findUnique({
       where: { projectId: resolvedParams.id },
       include: {
