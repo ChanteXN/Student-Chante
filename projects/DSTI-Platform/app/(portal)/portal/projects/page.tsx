@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Eye, Edit, Trash2, Plus, FileText } from "lucide-react";
+import { Loader2, Eye, Edit, Trash2, Plus, FileText, Gavel, ShieldCheck } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface Project {
@@ -174,6 +174,22 @@ export default function ProjectsPage() {
         >
           Under Review ({projects.filter((p) => p.status === "UNDER_REVIEW").length})
         </Button>
+        <Button
+          variant={filter === "APPROVED" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilter("APPROVED")}
+          className={filter === "APPROVED" ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" : "hover:border-green-300 hover:bg-green-50 transition-all"}
+        >
+          Approved ({projects.filter((p) => p.status === "APPROVED").length})
+        </Button>
+        <Button
+          variant={filter === "DECLINED" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilter("DECLINED")}
+          className={filter === "DECLINED" ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" : "hover:border-red-300 hover:bg-red-50 transition-all"}
+        >
+          Declined ({projects.filter((p) => p.status === "DECLINED").length})
+        </Button>
       </div>
 
       {/* Projects List */}
@@ -240,6 +256,31 @@ export default function ProjectsPage() {
                         Edit
                       </Button>
                     )}
+                    
+                    {(project.status === "APPROVED" || project.status === "DECLINED") && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/portal/projects/${project.id}/decision`)}
+                        className="hover:bg-red-50 hover:border-red-300 transition-all"
+                      >
+                        <Gavel className="h-4 w-4 mr-1" />
+                        Decision
+                      </Button>
+                    )}
+                    
+                    {project.status === "APPROVED" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/portal/projects/${project.id}/compliance`)}
+                        className="hover:bg-green-50 hover:border-green-300 transition-all"
+                      >
+                        <ShieldCheck className="h-4 w-4 mr-1" />
+                        Compliance
+                      </Button>
+                    )}
+                    
                     <Button
                       variant="outline"
                       size="sm"
@@ -249,6 +290,7 @@ export default function ProjectsPage() {
                       <Eye className="h-4 w-4 mr-1" />
                       View
                     </Button>
+                    
                     {project.status === "DRAFT" && (
                       <Button
                         variant="outline"

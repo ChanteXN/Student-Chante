@@ -22,6 +22,8 @@ export async function GET(_req: NextRequest) {
         milestones: true,
         staffing: true,
         learnings: true,
+        expenditure: true,
+        challenges: true,
         dueDate: true,
         submittedAt: true,
         status: true,

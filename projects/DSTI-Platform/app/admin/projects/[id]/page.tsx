@@ -207,6 +207,15 @@ export default function AdminProjectDetailPage({
             <Download className="h-4 w-4 mr-2" />
             {downloadingPdf ? "Downloading..." : "Download PDF"}
           </Button>
+          {(project.status === "UNDER_REVIEW" || project.status === "SUBMITTED") && (
+            <Button
+              onClick={() => router.push(`/admin/decisions/${resolvedParams.id}`)}
+              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Make Decision
+            </Button>
+          )}
           <Button
             onClick={() => router.push(`/admin/projects/${resolvedParams.id}/request`)}
             className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800"

@@ -153,6 +153,8 @@ model Project {
   evidenceFiles       EvidenceFile[]
   reviewRequests      ReviewRequest[]
   reviewerAssignments ReviewerAssignment[]
+  decision            Decision?
+  progressReports     ProgressReport[]
 
   @@map("projects")
 }
@@ -309,6 +311,33 @@ model ReviewerNote {
 }
 
 // ============================================================================
+// DECISION & OUTCOME
+// ============================================================================
+
+enum DecisionOutcome {
+  APPROVED
+  DECLINED
+}
+
+model Decision {
+  id         String          @id @default(cuid())
+  projectId  String          @unique
+  outcome    DecisionOutcome
+  reasoning  String // Detailed explanation for the decision
+  conditions String? // Any conditions attached to approval (e.g., "Pending final audit")
+  decidedBy  String // User ID of admin who made decision
+  decidedAt  DateTime        @default(now())
+  letterPath String? // Path to generated decision letter PDF
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("decisions")
+}
+
+// ============================================================================
 // AUDIT & COMPLIANCE
 // ============================================================================
 
@@ -403,6 +432,7 @@ enum ProgressReportStatus {
   DRAFT
   SUBMITTED
   UNDER_REVIEW
+  REQUIRES_CHANGES
   ACCEPTED
 }
 
@@ -414,11 +444,20 @@ model ProgressReport {
   milestones      String // Milestones reached
   staffing        String // Staffing updates
   learnings       String // Key learnings and insights
+  expenditure     String? // Expenditure summary for the period
+  challenges      String? // Challenges encountered
+  submittedBy     String? // User ID of submitter
+  reviewedBy      String? // Admin who reviewed
+  reviewedAt      DateTime? // When reviewed
+  feedback        String? // Admin feedback/comments
   dueDate         DateTime?
   submittedAt     DateTime?
   status          ProgressReportStatus @default(DRAFT)
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
   @@index([status])

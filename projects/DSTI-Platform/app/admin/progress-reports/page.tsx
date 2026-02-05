@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileText, Search, Calendar, Building2, ExternalLink } from "lucide-react";
+import { FileText, Search, Calendar, Building2, ExternalLink, Eye } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
@@ -16,6 +16,8 @@ interface ProgressReportWithProject {
   milestones: string;
   staffing: string;
   learnings: string;
+  expenditure: string | null;
+  challenges: string | null;
   dueDate: string | null;
   submittedAt: string | null;
   status: string;
@@ -244,7 +246,7 @@ export default function AdminProgressReportsPage() {
                         {report.status}
                       </Badge>
                     </div>
-                    <CardDescription className="space-y-1">
+                    <div className="space-y-1 text-sm text-muted-foreground mt-1.5">
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4" />
                         <span className="font-semibold">
@@ -271,17 +273,25 @@ export default function AdminProgressReportsPage() {
                             : "Not submitted"}
                         </span>
                       </div>
-                    </CardDescription>
+                    </div>
                   </div>
-                  <Link
-                    href={`/admin/projects/${report.projectId}`}
-                    target="_blank"
-                  >
-                    <Button variant="outline" size="sm">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      View Project
-                    </Button>
-                  </Link>
+                  <div className="flex gap-2">
+                    <Link href={`/admin/progress-reports/${report.id}` as any}>
+                      <Button variant="default" size="sm">
+                        <Eye className="h-4 w-4 mr-2" />
+                        Review
+                      </Button>
+                    </Link>
+                    <Link
+                      href={`/admin/projects/${report.projectId}`}
+                      target="_blank"
+                    >
+                      <Button variant="outline" size="sm">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        View Project
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">

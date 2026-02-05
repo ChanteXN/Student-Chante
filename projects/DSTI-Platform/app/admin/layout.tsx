@@ -15,7 +15,8 @@ import {
   HelpCircle,
   MessageSquare,
   ClipboardList,
-  ClipboardCheck
+  ClipboardCheck,
+  Gavel
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +42,11 @@ const navigationItems: NavItem[] = [
     title: "My Reviews",
     href: "/admin/reviews",
     icon: ClipboardCheck,
+  },
+  {
+    title: "Decisions",
+    href: "/admin/decisions",
+    icon: Gavel,
   },
   {
     title: "Information Requests",

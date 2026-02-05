@@ -40,6 +40,15 @@ export async function GET(_req: NextRequest) {
           select: {
             id: true,
             reviewerId: true,
+            completedAt: true,
+            recommendation: true,
+          },
+        },
+        // @ts-expect-error - Decision model exists but TS types not updated
+        decision: {
+          select: {
+            outcome: true,
+            decidedAt: true,
           },
         },
       },
