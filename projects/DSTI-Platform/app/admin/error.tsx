@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AdminError({
-  error,
+  error: _error,
   reset,
 }: {
   error: Error & { digest?: string };

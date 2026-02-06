@@ -7,8 +7,7 @@ import type { Route } from "next";
 import { 
   LayoutDashboard, 
   FolderOpen, 
-  FileText, 
-  Users, 
+  FileText,
   Settings,
   Shield,
   BarChart3,
