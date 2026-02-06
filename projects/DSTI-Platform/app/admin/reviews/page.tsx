@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ClipboardCheck, Building2, Calendar, TrendingUp, AlertCircle } from "lucide-react";
+import { ClipboardCheck, TrendingUp, AlertCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface Assignment {
@@ -289,7 +289,7 @@ export default function MyReviewsPage() {
             <ClipboardCheck className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-600 font-medium">No reviews assigned yet</p>
             <p className="text-sm text-gray-500 mt-1">
-              You'll see applications here once they are assigned to you for review
+              You&apos;ll see applications here once they are assigned to you for review
             </p>
           </CardContent>
         </Card>

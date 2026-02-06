@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ProgressReportStatus } from "@prisma/client";
 
 /**
  * GET /api/admin/progress-reports/[id]
@@ -136,11 +135,11 @@ export async function PUT(
     const updatedReport = await prisma.progressReport.update({
       where: { id },
       data: {
-        status: newStatus as any,
+        status: newStatus as "SUBMITTED" | "ACCEPTED" | "REQUIRES_CHANGES",
         reviewedBy: session.user.email,
         reviewedAt: new Date(),
         feedback: feedback || null,
-      } as any,
+      },
     });
 
     // TODO: Create audit log when AuditLog model is available
