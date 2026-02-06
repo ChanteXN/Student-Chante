@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,17 +11,14 @@ import {
   ClipboardCheck, 
   FileText, 
   Building2, 
-  Calendar, 
-  DollarSign,
+  Calendar,
   Users,
   Lightbulb,
-  AlertTriangle,
   CheckCircle2,
   XCircle,
   MessageSquare,
   Save
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
 
 interface Project {
   id: string;
@@ -40,7 +37,7 @@ interface Project {
   };
   sections: {
     sectionKey: string;
-    sectionData: any;
+    sectionData: Record<string, unknown>;
   }[];
 }
 
@@ -65,7 +62,6 @@ const statusColors: Record<string, string> = {
 
 export default function ReviewerWorkspacePage() {
   const params = useParams();
-  const router = useRouter();
   const projectId = params.id as string;
 
   const [project, setProject] = useState<Project | null>(null);
@@ -84,17 +80,7 @@ export default function ReviewerWorkspacePage() {
   const [recommendation, setRecommendation] = useState<string>("");
   const [recommendationNote, setRecommendationNote] = useState<string>("");
 
-  // Notes
-  const [notes, setNotes] = useState<string>("");
-
-  useEffect(() => {
-    if (projectId) {
-      fetchProject();
-      fetchAssignment();
-    }
-  }, [projectId]);
-
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${projectId}`);
       if (response.ok) {
@@ -108,9 +94,9 @@ export default function ReviewerWorkspacePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
 
-  const fetchAssignment = async () => {
+  const fetchAssignment = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${projectId}/assign`);
       if (response.ok) {
@@ -133,7 +119,14 @@ export default function ReviewerWorkspacePage() {
     } catch (error) {
       console.error("Error fetching assignment:", error);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProject();
+      fetchAssignment();
+    }
+  }, [projectId, fetchProject, fetchAssignment]);
 
   const handleSaveReview = async () => {
     if (!assignment) {

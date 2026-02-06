@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,11 +33,7 @@ export default function RequestInfoPage({
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    fetchProject();
-  }, []);
-
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${resolvedParams.id}`);
       if (response.ok) {
@@ -60,7 +56,11 @@ export default function RequestInfoPage({
     } finally {
       setLoading(false);
     }
-  };
+  }, [resolvedParams.id, toast]);
+
+  useEffect(() => {
+    fetchProject();
+  }, [fetchProject]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
