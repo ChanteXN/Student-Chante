@@ -97,7 +97,7 @@ export default function AIAssistantPage() {
       if (!res.ok) throw new Error("Failed to load document");
       const data = await res.json();
       setFullContent(data.content || "No additional content available.");
-    } catch (err) {
+    } catch {
       setFullContent("Unable to load full document content.");
     } finally {
       setLoadingSource(false);
