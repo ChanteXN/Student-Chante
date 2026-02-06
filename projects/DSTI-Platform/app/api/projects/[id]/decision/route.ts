@@ -16,7 +16,7 @@ export async function GET(
     const resolvedParams = await params;
 
     // Verify access to project
-    const project = (await prisma.project.findUnique({
+    const project = await prisma.project.findUnique({
       where: { id: resolvedParams.id },
       include: {
         organisation: {
@@ -38,7 +38,7 @@ export async function GET(
           },
         },
       },
-    })) as any;
+    });
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });

@@ -103,10 +103,10 @@ export async function POST(request: NextRequest) {
 
       const projectData = {
         title: project.title,
-        uncertainty: uncertaintySection?.sectionData?.uncertainty as string,
-        methodology: methodologySection?.sectionData?.researchApproach as string,
-        team: teamSection?.sectionData?.keyPersonnel as string,
-        budget: expenditureSection?.sectionData?.totalBudget as string,
+        uncertainty: (uncertaintySection?.sectionData as any)?.uncertainty as string,
+        methodology: (methodologySection?.sectionData as any)?.researchApproach as string,
+        team: (teamSection?.sectionData as any)?.keyPersonnel as string,
+        budget: (expenditureSection?.sectionData as any)?.totalBudget as string,
         evidenceCount: project.evidenceFiles?.length || 0,
       };
 

@@ -114,7 +114,7 @@ export async function POST(
  */
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -131,9 +131,10 @@ export async function GET(
       );
     }
 
+    const { id } = await params;
     const assignments = await prisma.reviewerAssignment.findMany({
       where: {
-        projectId: params.id,
+        projectId: id,
       },
       include: {
         reviewer: {
