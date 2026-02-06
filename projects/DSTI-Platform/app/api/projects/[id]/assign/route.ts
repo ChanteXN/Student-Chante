@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -25,6 +25,7 @@ export async function POST(
       );
     }
 
+    const { id } = await params;
     const { reviewerId } = await req.json();
 
     if (!reviewerId) {
@@ -36,7 +37,7 @@ export async function POST(
 
     // Verify project exists
     const project = await prisma.project.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!project) {
@@ -62,7 +63,7 @@ export async function POST(
     // Update project status to UNDER_REVIEW if not already
     if (project.status === "SUBMITTED") {
       await prisma.project.update({
-        where: { id: params.id },
+        where: { id },
         data: { status: "UNDER_REVIEW" },
       });
     }
@@ -71,7 +72,7 @@ export async function POST(
     const assignment = await prisma.reviewerAssignment.upsert({
       where: {
         projectId_reviewerId: {
-          projectId: params.id,
+          projectId: id,
           reviewerId: reviewerId,
         },
       },
@@ -80,7 +81,7 @@ export async function POST(
         assignedAt: new Date(),
       },
       create: {
-        projectId: params.id,
+        projectId: id,
         reviewerId: reviewerId,
       },
       include: {
