@@ -65,7 +65,7 @@ export class ErrorBoundary extends Component<Props, State> {
               )}
               
               <p className="text-sm text-muted-foreground">
-                We're sorry for the inconvenience. Please try refreshing the page
+                We&apos;re sorry for the inconvenience. Please try refreshing the page
                 or contact support if the problem persists.
               </p>
 

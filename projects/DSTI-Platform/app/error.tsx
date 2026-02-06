@@ -48,7 +48,7 @@ export default function Error({
           )}
           
           <p className="text-sm text-muted-foreground">
-            We're sorry for the inconvenience. Please try again or return to the homepage.
+            We&apos;re sorry for the inconvenience. Please try again or return to the homepage.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3">
