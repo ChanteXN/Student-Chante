@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,7 +45,7 @@ interface ProjectData {
 export default function CompliancePage() {
   const params = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: _session } = useSession();
   const { toast } = useToast();
 
   const [data, setData] = useState<ProjectData | null>(null);
@@ -62,13 +62,7 @@ export default function CompliancePage() {
     challenges: "",
   });
 
-  useEffect(() => {
-    if (params.id) {
-      fetchData();
-    }
-  }, [params.id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -95,7 +89,13 @@ export default function CompliancePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.id, toast]);
+
+  useEffect(() => {
+    if (params.id) {
+      fetchData();
+    }
+  }, [params.id, fetchData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
