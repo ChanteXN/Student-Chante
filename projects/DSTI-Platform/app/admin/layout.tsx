@@ -13,7 +13,10 @@ import {
   Shield,
   BarChart3,
   HelpCircle,
-  MessageSquare
+  MessageSquare,
+  ClipboardList,
+  ClipboardCheck,
+  Gavel
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -36,19 +39,29 @@ const navigationItems: NavItem[] = [
     icon: FolderOpen,
   },
   {
+    title: "My Reviews",
+    href: "/admin/reviews",
+    icon: ClipboardCheck,
+  },
+  {
+    title: "Decisions",
+    href: "/admin/decisions",
+    icon: Gavel,
+  },
+  {
     title: "Information Requests",
     href: "/admin/requests",
     icon: MessageSquare,
   },
   {
+    title: "Progress Reports",
+    href: "/admin/progress-reports",
+    icon: ClipboardList,
+  },
+  {
     title: "Applications",
     href: "/admin/applications",
     icon: FileText,
-  },
-  {
-    title: "Reviewers",
-    href: "/admin/reviewers",
-    icon: Users,
   },
 ];
 

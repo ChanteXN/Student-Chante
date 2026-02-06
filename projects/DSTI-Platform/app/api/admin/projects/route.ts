@@ -31,6 +31,26 @@ export async function GET(_req: NextRequest) {
             name: true,
           },
         },
+        evidenceFiles: {
+          select: {
+            category: true,
+          },
+        },
+        reviewerAssignments: {
+          select: {
+            id: true,
+            reviewerId: true,
+            completedAt: true,
+            recommendation: true,
+          },
+        },
+        // @ts-expect-error - Decision model exists but TS types not updated
+        decision: {
+          select: {
+            outcome: true,
+            decidedAt: true,
+          },
+        },
       },
       orderBy: { submittedAt: "desc" },
     });

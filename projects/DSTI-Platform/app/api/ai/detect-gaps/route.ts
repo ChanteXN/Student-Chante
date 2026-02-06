@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { mockDetectGapsResponse } from "@/lib/ai/mock-responses";
 import { auth } from "@/lib/auth";
 import { scanResponseForViolations, sanitizeResponse } from "@/lib/ai/guardrails";
+import { prisma } from "@/lib/prisma";
 
 // Using mock responses for testing (OpenAI billing not yet configured)
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,15 +21,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { projectDescription, sections } = body;
-
-    // Validate input
-    if (!projectDescription && !sections) {
-      return NextResponse.json(
-        { error: "Project description or sections required" },
-        { status: 400 }
-      );
-    }
+    const { projectId, uploadedCategories, context, sections, projectDescription } = body;
 
     // Use mock responses for UI testing
     if (USE_MOCK) {
@@ -60,17 +53,104 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Real AI implementation (commented out until billing configured)
-    // const { detectMissingEvidence } = await import("@/lib/ai/chat");
-    // const missingItems = await detectMissingEvidence(projectDescription);
-    // return NextResponse.json({
-    //   missingItems,
-    //   count: missingItems.length,
-    // });
+    // Handle different contexts
+    if (context === "evidence_completeness") {
+      // Evidence Gap Detection
+      const { analyzeEvidenceGaps } = await import("@/lib/ai/chat");
+      const result = await analyzeEvidenceGaps(uploadedCategories || []);
+      
+      // Apply guardrails
+      result.gaps = result.gaps.map(gap => {
+        const violationCheck = scanResponseForViolations(gap.suggestion);
+        if (violationCheck.hasViolation) {
+          gap.suggestion = sanitizeResponse(gap.suggestion);
+        }
+        return gap;
+      });
+      
+      return NextResponse.json(result);
+      
+    } else if (context === "submission_risk_analysis") {
+      // Risk Analysis
+      if (!projectId) {
+        return NextResponse.json(
+          { error: "Project ID required for risk analysis" },
+          { status: 400 }
+        );
+      }
 
-    return NextResponse.json({
-      error: "AI features require OpenAI billing setup"
-    }, { status: 503 });
+      // Fetch project data
+      const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: {
+          sections: true,
+          evidenceFiles: true,
+        },
+      });
+
+      if (!project) {
+        return NextResponse.json(
+          { error: "Project not found" },
+          { status: 404 }
+        );
+      }
+
+      // Extract section data
+      const uncertaintySection = project.sections.find(s => s.sectionKey === 'uncertainty');
+      const methodologySection = project.sections.find(s => s.sectionKey === 'methodology');
+      const teamSection = project.sections.find(s => s.sectionKey === 'team');
+      const expenditureSection = project.sections.find(s => s.sectionKey === 'expenditure');
+
+      const projectData = {
+        title: project.title,
+        uncertainty: uncertaintySection?.sectionData?.uncertainty as string,
+        methodology: methodologySection?.sectionData?.researchApproach as string,
+        team: teamSection?.sectionData?.keyPersonnel as string,
+        budget: expenditureSection?.sectionData?.totalBudget as string,
+        evidenceCount: project.evidenceFiles?.length || 0,
+      };
+
+      const { analyzeSubmissionRisks } = await import("@/lib/ai/chat");
+      const result = await analyzeSubmissionRisks(projectData);
+      
+      // Apply guardrails
+      result.risks = result.risks.map(risk => {
+        const issueCheck = scanResponseForViolations(risk.issue);
+        const recCheck = scanResponseForViolations(risk.recommendation);
+        
+        if (issueCheck.hasViolation) {
+          risk.issue = sanitizeResponse(risk.issue);
+        }
+        if (recCheck.hasViolation) {
+          risk.recommendation = sanitizeResponse(risk.recommendation);
+        }
+        return risk;
+      });
+      
+      return NextResponse.json(result);
+      
+    } else {
+      // Generic gap detection (fallback)
+      const { detectMissingEvidence } = await import("@/lib/ai/chat");
+      const missingItems = await detectMissingEvidence(projectDescription || "");
+      
+      const gaps = missingItems.map((item, index) => {
+        const violationCheck = scanResponseForViolations(item);
+        const sanitizedItem = violationCheck.hasViolation ? sanitizeResponse(item) : item;
+        
+        return {
+          id: `gap-${index + 1}`,
+          severity: 'medium',
+          message: sanitizedItem,
+          recommendation: sanitizedItem,
+        };
+      });
+      
+      return NextResponse.json({
+        gaps,
+        count: gaps.length,
+      });
+    }
 
   } catch (error) {
     console.error("Error in /api/ai/detect-gaps:", error);

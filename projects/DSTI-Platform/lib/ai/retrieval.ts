@@ -18,7 +18,7 @@ export interface RetrievalOptions {
 
 const DEFAULT_OPTIONS: Required<RetrievalOptions> = {
   topK: 5,
-  similarityThreshold: 0.7,
+  similarityThreshold: 0.2, // 20% - typical range for semantic similarity
   documentTypes: [],
 };
 

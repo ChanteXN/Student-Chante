@@ -14,7 +14,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Eye, MessageSquarePlus, FolderOpen } from "lucide-react";
+import { Search, Eye, MessageSquarePlus, FolderOpen, ArrowUpDown, AlertCircle, FileText, TrendingUp, Filter, UserPlus, ClipboardCheck } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Project {
   id: string;
@@ -22,9 +30,24 @@ interface Project {
   status: string;
   caseReference: string | null;
   submittedAt: string | null;
+  readinessScore: number | null;
   organisation: {
     name: string;
   };
+  evidenceFiles?: {
+    category: string;
+  }[];
+  reviewerAssignments?: {
+    id: string;
+    reviewerId: string;
+  }[];
+}
+
+interface Reviewer {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
 }
 
 const statusColors: Record<string, string> = {
@@ -37,14 +60,28 @@ const statusColors: Record<string, string> = {
   WITHDRAWN: "bg-gray-100 text-gray-600 border-gray-300",
 };
 
+const REQUIRED_EVIDENCE = ["RD_PLAN", "TIMESHEETS", "EXPERIMENTS"];
+
+type SortField = "submittedAt" | "readinessScore" | "title" | "status";
+type SortDirection = "asc" | "desc";
+
 export default function AdminProjectsPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [readinessFilter, setReadinessFilter] = useState<string>("0");
+  const [showOnlyWithMissingEvidence, setShowOnlyWithMissingEvidence] = useState(false);
+  const [sortField, setSortField] = useState<SortField>("submittedAt");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [reviewers, setReviewers] = useState<Reviewer[]>([]);
+  const [selectedReviewers, setSelectedReviewers] = useState<Record<string, string>>({});
+  const [assigning, setAssigning] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchProjects();
+    fetchReviewers();
   }, []);
 
   const fetchProjects = async () => {
@@ -61,33 +98,195 @@ export default function AdminProjectsPage() {
     }
   };
 
-  const filteredProjects = projects.filter((project) =>
-    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.organisation.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.caseReference?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const fetchReviewers = async () => {
+    try {
+      const response = await fetch("/api/admin/reviewers");
+      if (response.ok) {
+        const data = await response.json();
+        setReviewers(data.reviewers || []);
+      }
+    } catch (error) {
+      console.error("Error fetching reviewers:", error);
+    }
+  };
+
+  const handleAssignReviewer = async (projectId: string) => {
+    const reviewerId = selectedReviewers[projectId];
+    if (!reviewerId) return;
+
+    setAssigning({ ...assigning, [projectId]: true });
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/assign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviewerId }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message || "Reviewer assigned successfully");
+        // Clear selection after assignment
+        setSelectedReviewers({ ...selectedReviewers, [projectId]: "" });
+      } else {
+        const data = await response.json();
+        alert(data.error || "Failed to assign reviewer");
+      }
+    } catch (error) {
+      console.error("Error assigning reviewer:", error);
+      alert("Failed to assign reviewer");
+    } finally {
+      setAssigning({ ...assigning, [projectId]: false });
+    }
+  };
+
+  const getMissingEvidence = (project: Project) => {
+    const uploadedCategories = (project.evidenceFiles || []).map(f => f.category);
+    return REQUIRED_EVIDENCE.filter(req => !uploadedCategories.includes(req));
+  };
+
+  const getReadinessScoreColor = (score: number | null) => {
+    if (score === null) return "bg-gray-100 text-gray-700";
+    if (score >= 80) return "bg-green-100 text-green-700";
+    if (score >= 60) return "bg-blue-100 text-blue-700";
+    if (score >= 40) return "bg-amber-100 text-amber-700";
+    return "bg-red-100 text-red-700";
+  };
+
+  const getRiskLevel = (project: Project) => {
+    const missingEvidence = getMissingEvidence(project).length;
+    const score = project.readinessScore || 0;
+    
+    if (missingEvidence >= 2 || score < 40) return { level: "HIGH", color: "text-red-600" };
+    if (missingEvidence === 1 || score < 60) return { level: "MEDIUM", color: "text-amber-600" };
+    return { level: "LOW", color: "text-green-600" };
+  };
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("desc");
+    }
+  };
+
+  const filteredProjects = projects
+    .filter((project) => {
+      // Search filter
+      const searchMatch = 
+        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.organisation.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.caseReference?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      if (!searchMatch) return false;
+
+      // Status filter
+      if (statusFilter !== "ALL" && project.status !== statusFilter) return false;
+
+      // Readiness filter
+      const minReadiness = Number(readinessFilter);
+      if (minReadiness > 0 && (project.readinessScore || 0) < minReadiness) return false;
+
+      // Missing evidence filter
+      if (showOnlyWithMissingEvidence && getMissingEvidence(project).length === 0) return false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortField) {
+        case "submittedAt":
+          comparison = new Date(a.submittedAt || 0).getTime() - new Date(b.submittedAt || 0).getTime();
+          break;
+        case "readinessScore":
+          comparison = (a.readinessScore || 0) - (b.readinessScore || 0);
+          break;
+        case "title":
+          comparison = a.title.localeCompare(b.title);
+          break;
+        case "status":
+          comparison = a.status.localeCompare(b.status);
+          break;
+      }
+
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+
+  const stats = {
+    total: projects.length,
+    submitted: projects.filter(p => p.status === "SUBMITTED").length,
+    underReview: projects.filter(p => p.status === "UNDER_REVIEW").length,
+    pendingInfo: projects.filter(p => p.status === "PENDING_INFO").length,
+    highRisk: projects.filter(p => getRiskLevel(p).level === "HIGH").length,
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          All Projects
+          Application Screening Dashboard
         </h1>
         <p className="text-gray-600 mt-1 text-base">
-          Review and manage all R&D tax incentive applications
+          Triage and prioritize R&D tax incentive applications
         </p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Total Applications</CardDescription>
+            <CardTitle className="text-3xl">{stats.total}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Submitted</CardDescription>
+            <CardTitle className="text-3xl text-blue-600">{stats.submitted}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Under Review</CardDescription>
+            <CardTitle className="text-3xl text-yellow-600">{stats.underReview}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Pending Info</CardDescription>
+            <CardTitle className="text-3xl text-orange-600">{stats.pendingInfo}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>High Risk</CardDescription>
+            <CardTitle className="text-3xl text-red-600">{stats.highRisk}</CardTitle>
+          </CardHeader>
+        </Card>
       </div>
 
       {/* Main Card */}
       <Card className="border-2 hover:shadow-xl transition-shadow">
         <CardHeader>
-          <CardTitle className="text-xl">Application Registry</CardTitle>
-          <CardDescription className="text-base">
-            Search and filter through submitted applications
-          </CardDescription>
-          <div className="flex items-center gap-4 pt-4">
-            <div className="relative flex-1">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <Filter className="h-5 w-5" />
+                Application Registry
+              </CardTitle>
+              <CardDescription className="text-base">
+                Search, filter, and sort applications for fast triage
+              </CardDescription>
+            </div>
+          </div>
+          
+          {/* Search and Filters */}
+          <div className="space-y-4 pt-4">
+            {/* Search */}
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
                 placeholder="Search by title, organization, or case reference..."
@@ -95,6 +294,51 @@ export default function AdminProjectsPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
+            </div>
+
+            {/* Filter Buttons */}
+            <div className="flex flex-wrap gap-3">
+              {/* Status Filter */}
+              <div className="flex gap-2">
+                {["ALL", "SUBMITTED", "UNDER_REVIEW", "PENDING_INFO", "APPROVED", "DECLINED"].map((status) => (
+                  <Button
+                    key={status}
+                    variant={statusFilter === status ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setStatusFilter(status)}
+                    className={statusFilter === status ? "" : "hover:bg-gray-100"}
+                  >
+                    {status.replace(/_/g, " ")}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Additional Filters */}
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <label className="font-medium text-gray-700">Min Readiness:</label>
+                <select
+                  value={readinessFilter}
+                  onChange={(e) => setReadinessFilter(e.target.value)}
+                  className="border border-gray-300 rounded px-2 py-1"
+                >
+                  <option value="0">All</option>
+                  <option value="40">≥ 40%</option>
+                  <option value="60">≥ 60%</option>
+                  <option value="80">≥ 80%</option>
+                </select>
+              </div>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showOnlyWithMissingEvidence}
+                  onChange={(e) => setShowOnlyWithMissingEvidence(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <span className="font-medium text-gray-700">Missing Evidence Only</span>
+              </label>
             </div>
           </div>
         </CardHeader>
@@ -117,69 +361,183 @@ export default function AdminProjectsPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-50">
-                    <TableHead className="font-semibold">Case Reference</TableHead>
-                    <TableHead className="font-semibold">Project Title</TableHead>
+                    <TableHead className="font-semibold">Case Ref</TableHead>
+                    <TableHead className="font-semibold">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="h-8 -ml-3"
+                        onClick={() => handleSort("title")}
+                      >
+                        Project Title
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </Button>
+                    </TableHead>
                     <TableHead className="font-semibold">Organisation</TableHead>
-                    <TableHead className="font-semibold">Status</TableHead>
-                    <TableHead className="font-semibold">Submitted</TableHead>
+                    <TableHead className="font-semibold">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="h-8 -ml-3"
+                        onClick={() => handleSort("status")}
+                      >
+                        Status
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </Button>
+                    </TableHead>
+                    <TableHead className="font-semibold">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="h-8 -ml-3"
+                        onClick={() => handleSort("readinessScore")}
+                      >
+                        Readiness
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </Button>
+                    </TableHead>
+                    <TableHead className="font-semibold">Risk</TableHead>
+                    <TableHead className="font-semibold">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="h-8 -ml-3"
+                        onClick={() => handleSort("submittedAt")}
+                      >
+                        Submitted
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </Button>
+                    </TableHead>
                     <TableHead className="text-right font-semibold">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredProjects.map((project) => (
-                    <TableRow key={project.id} className="hover:bg-gray-50 transition-colors">
-                      <TableCell className="font-mono text-sm font-medium">
-                        {project.caseReference || "—"}
-                      </TableCell>
-                      <TableCell className="font-medium text-gray-900">
-                        {project.title}
-                      </TableCell>
-                      <TableCell className="text-gray-700">{project.organisation.name}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={`${statusColors[project.status]} border font-medium`}
-                        >
-                          {project.status.replace(/_/g, " ")}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-gray-600">
-                        {project.submittedAt
-                          ? new Date(project.submittedAt).toLocaleDateString('en-ZA', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })
-                          : "—"}
-                      </TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
-                          onClick={() =>
-                            router.push(`/admin/projects/${project.id}`)
-                          }
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                        {project.status !== "DRAFT" && (
-                          <Button
-                            size="sm"
+                  {filteredProjects.map((project) => {
+                    const missingEvidence = getMissingEvidence(project);
+                    const risk = getRiskLevel(project);
+                    
+                    return (
+                      <TableRow key={project.id} className="hover:bg-gray-50 transition-colors">
+                        <TableCell className="font-mono text-xs font-medium">
+                          {project.caseReference || "—"}
+                        </TableCell>
+                        <TableCell className="font-medium text-gray-900">
+                          <div className="flex items-start gap-2">
+                            {project.title}
+                            {missingEvidence.length > 0 && (
+                              <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
+                                <FileText className="h-3 w-3 mr-1" />
+                                {missingEvidence.length} missing
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-gray-700 text-sm">
+                          {project.organisation.name}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
                             variant="outline"
-                            className="hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300"
-                            onClick={() =>
-                              router.push(`/admin/projects/${project.id}/request`)
-                            }
+                            className={`${statusColors[project.status]} border font-medium text-xs`}
                           >
-                            <MessageSquarePlus className="h-4 w-4 mr-1" />
-                            Request Info
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            {project.status.replace(/_/g, " ")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant="outline"
+                              className={`${getReadinessScoreColor(project.readinessScore)} border font-medium`}
+                            >
+                              <TrendingUp className="h-3 w-3 mr-1" />
+                              {project.readinessScore || 0}%
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <AlertCircle className={`h-4 w-4 ${risk.color}`} />
+                            <span className={`text-xs font-semibold ${risk.color}`}>
+                              {risk.level}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-gray-600 text-sm">
+                          {project.submittedAt
+                            ? formatDistanceToNow(new Date(project.submittedAt), { addSuffix: true })
+                            : "—"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2 flex-wrap">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
+                              onClick={() => router.push(`/admin/projects/${project.id}`)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                            {project.reviewerAssignments && project.reviewerAssignments.length > 0 && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300"
+                                onClick={() => router.push(`/admin/review/${project.id}`)}
+                              >
+                                <ClipboardCheck className="h-4 w-4 mr-1" />
+                                Review
+                              </Button>
+                            )}
+                            {project.status !== "DRAFT" && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300"
+                                  onClick={() => router.push(`/admin/projects/${project.id}/request`)}
+                                >
+                                  <MessageSquarePlus className="h-4 w-4 mr-1" />
+                                  Request Info
+                                </Button>
+                                
+                                {/* Assign Reviewer Dropdown and Button */}
+                                <div className="flex items-center gap-1">
+                                  <Select
+                                    value={selectedReviewers[project.id] || ""}
+                                    onValueChange={(value) =>
+                                      setSelectedReviewers({ ...selectedReviewers, [project.id]: value })
+                                    }
+                                  >
+                                    <SelectTrigger className="w-[150px] h-8 text-xs">
+                                      <SelectValue placeholder="Select reviewer" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {reviewers.map((reviewer) => (
+                                        <SelectItem key={reviewer.id} value={reviewer.id} className="text-xs">
+                                          {reviewer.name || reviewer.email}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="hover:bg-green-50 hover:text-green-700 hover:border-green-300 h-8"
+                                    onClick={() => handleAssignReviewer(project.id)}
+                                    disabled={!selectedReviewers[project.id] || assigning[project.id]}
+                                  >
+                                    <UserPlus className="h-4 w-4 mr-1" />
+                                    {assigning[project.id] ? "Assigning..." : "Assign"}
+                                  </Button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

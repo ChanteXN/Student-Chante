@@ -153,6 +153,8 @@ model Project {
   evidenceFiles       EvidenceFile[]
   reviewRequests      ReviewRequest[]
   reviewerAssignments ReviewerAssignment[]
+  decision            Decision?
+  progressReports     ProgressReport[]
 
   @@map("projects")
 }
@@ -272,6 +274,17 @@ model ReviewerAssignment {
   assignedAt  DateTime  @default(now())
   completedAt DateTime?
 
+  // Rubric Scoring (1-5 scale)
+  section11dScore    Int? // Section 11D compliance
+  uncertaintyScore   Int? // Uncertainty clarity
+  innovationScore    Int? // Innovation significance
+  budgetScore        Int? // Budget reasonableness
+  timelineScore      Int? // Timeline feasibility
+
+  // Recommendation
+  recommendation     String? // APPROVE, DECLINE, REQUEST_INFO
+  recommendationNote String? // Explanation for recommendation
+
   // Relations
   project  Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
   reviewer User           @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
@@ -295,6 +308,33 @@ model ReviewerNote {
   reviewer   User               @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
 
   @@map("reviewer_notes")
+}
+
+// ============================================================================
+// DECISION & OUTCOME
+// ============================================================================
+
+enum DecisionOutcome {
+  APPROVED
+  DECLINED
+}
+
+model Decision {
+  id         String          @id @default(cuid())
+  projectId  String          @unique
+  outcome    DecisionOutcome
+  reasoning  String // Detailed explanation for the decision
+  conditions String? // Any conditions attached to approval (e.g., "Pending final audit")
+  decidedBy  String // User ID of admin who made decision
+  decidedAt  DateTime        @default(now())
+  letterPath String? // Path to generated decision letter PDF
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("decisions")
 }
 
 // ============================================================================
@@ -382,4 +422,45 @@ model AIConversation {
   @@index([projectId])
   @@index([createdAt])
   @@map("ai_conversations")
+}
+
+// ============================================================================
+// PROGRESS REPORTING (Post-Approval Monitoring)
+// ============================================================================
+
+enum ProgressReportStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  REQUIRES_CHANGES
+  ACCEPTED
+}
+
+model ProgressReport {
+  id              String               @id @default(cuid())
+  projectId       String
+  reportingPeriod String // e.g., "Q1 2026", "Annual 2025"
+  outcomes        String // Outcomes achieved during period
+  milestones      String // Milestones reached
+  staffing        String // Staffing updates
+  learnings       String // Key learnings and insights
+  expenditure     String? // Expenditure summary for the period
+  challenges      String? // Challenges encountered
+  submittedBy     String? // User ID of submitter
+  reviewedBy      String? // Admin who reviewed
+  reviewedAt      DateTime? // When reviewed
+  feedback        String? // Admin feedback/comments
+  dueDate         DateTime?
+  submittedAt     DateTime?
+  status          ProgressReportStatus @default(DRAFT)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("progress_reports")
 }

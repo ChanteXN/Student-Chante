@@ -88,7 +88,7 @@ export async function generateAIResponse(
     console.log("Retrieving relevant context...");
     const sources = await retrieveRelevantChunks(query, {
       topK: 5,
-      similarityThreshold: 0.7,
+      similarityThreshold: 0.2, // 20% - appropriate for semantic similarity
     });
 
     const context = formatContextForLLM(sources);
@@ -278,5 +278,232 @@ List specific missing items based on programme requirements. Be concise.`;
   } catch (error) {
     console.error("Error detecting missing evidence:", error);
     throw new Error("Failed to detect missing evidence");
+  }
+}
+
+/**
+ * Analyze evidence gaps for uploaded documents
+ */
+export async function analyzeEvidenceGaps(
+  uploadedCategories: string[]
+): Promise<{
+  gaps: Array<{
+    category: string;
+    severity: "high" | "medium" | "low";
+    suggestion: string;
+  }>;
+  recommendations: string[];
+}> {
+  try {
+    const requiredCategories = [
+      "RD_PLAN",
+      "LITERATURE_SEARCH",
+      "TIMESHEETS",
+      "EXPERIMENTS",
+      "OUTPUTS",
+      "FINANCIAL_RECORDS",
+    ];
+
+    const categoryLabels: Record<string, string> = {
+      RD_PLAN: "R&D Plan",
+      LITERATURE_SEARCH: "Literature Search",
+      TIMESHEETS: "Timesheets",
+      EXPERIMENTS: "Experiments & Test Results",
+      OUTPUTS: "Project Outputs",
+      FINANCIAL_RECORDS: "Financial Records",
+    };
+
+    const missingCategories = requiredCategories.filter(
+      (cat) => !uploadedCategories.includes(cat)
+    );
+
+    const prompt = `Analyze this R&D project's evidence documentation status:
+
+Uploaded Evidence Categories: ${uploadedCategories.length > 0 ? uploadedCategories.map(c => categoryLabels[c] || c).join(", ") : "None"}
+Missing Categories: ${missingCategories.length > 0 ? missingCategories.map(c => categoryLabels[c]).join(", ") : "None"}
+
+For each missing category, provide:
+1. Why it's important for R&D Tax Incentive applications
+2. Specific suggestions on what to upload
+
+Format your response as:
+CATEGORY_NAME (HIGH/MEDIUM/LOW): Specific suggestion about what to upload
+
+Then provide 2-3 general recommendations.`;
+
+    const client = getOpenAI();
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert in R&D Tax Incentive applications. Provide practical, specific guidance on evidence documentation.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      temperature: 0.4,
+      max_tokens: 600,
+    });
+
+    const response = completion.choices[0]?.message?.content || "";
+    const lines = response.split("\n").filter((line) => line.trim());
+
+    const gaps: Array<{
+      category: string;
+      severity: "high" | "medium" | "low";
+      suggestion: string;
+    }> = [];
+    const recommendations: string[] = [];
+
+    for (const line of lines) {
+      const gapMatch = line.match(/^(.+?)\s*\((HIGH|MEDIUM|LOW)\):\s*(.+)$/i);
+      if (gapMatch) {
+        const severityMap: Record<string, "high" | "medium" | "low"> = {
+          high: "high",
+          medium: "medium",
+          low: "low",
+        };
+        gaps.push({
+          category: gapMatch[1].trim(),
+          severity: severityMap[gapMatch[2].toLowerCase()] || "medium",
+          suggestion: gapMatch[3].trim(),
+        });
+      } else if (line.match(/^[-*•\d]/)) {
+        const rec = line.replace(/^[-*•\d.)\s]+/, "").trim();
+        if (rec.length > 10) recommendations.push(rec);
+      }
+    }
+
+    // Add critical missing categories if AI didn't catch them
+    for (const cat of missingCategories) {
+      if (!gaps.some((g) => g.category.includes(categoryLabels[cat]))) {
+        const severity: "high" | "medium" | "low" = ["RD_PLAN", "EXPERIMENTS", "FINANCIAL_RECORDS"].includes(cat) ? "high" : "medium";
+        gaps.push({
+          category: categoryLabels[cat],
+          severity,
+          suggestion: `Upload ${categoryLabels[cat].toLowerCase()} to demonstrate your R&D activities and qualifying expenditure.`,
+        });
+      }
+    }
+
+    return { gaps, recommendations };
+  } catch (error) {
+    console.error("Error analyzing evidence gaps:", error);
+    throw new Error("Failed to analyze evidence gaps");
+  }
+}
+
+/**
+ * Analyze submission risks for a project
+ */
+export async function analyzeSubmissionRisks(
+  projectData: {
+    title?: string;
+    uncertainty?: string;
+    methodology?: string;
+    team?: string;
+    budget?: string;
+    evidenceCount?: number;
+  }
+): Promise<{
+  risks: Array<{
+    category: string;
+    severity: "critical" | "high" | "medium" | "low";
+    issue: string;
+    recommendation: string;
+  }>;
+  overallAssessment: string;
+  strengthAreas: string[];
+}> {
+  try {
+    const prompt = `Analyze this R&D Tax Incentive application for potential approval risks:
+
+Project: ${projectData.title || "Untitled"}
+Technical Uncertainty: ${projectData.uncertainty ? "Described (" + projectData.uncertainty.substring(0, 100) + "...)" : "Not provided"}
+Methodology: ${projectData.methodology ? "Described (" + projectData.methodology.substring(0, 100) + "...)" : "Not provided"}
+Team Information: ${projectData.team ? "Provided" : "Not provided"}
+Budget: ${projectData.budget ? "Provided" : "Not provided"}
+Evidence Files: ${projectData.evidenceCount || 0} uploaded
+
+Identify:
+1. Critical risks that could lead to rejection
+2. Areas that need strengthening
+3. Compliance concerns
+4. Missing information
+
+Format each risk as:
+CATEGORY (CRITICAL/HIGH/MEDIUM/LOW): Issue description
+RECOMMENDATION: Specific action to address the issue
+
+Then provide:
+- Overall assessment (2-3 sentences)
+- Strength areas (bullet points)`;
+
+    const client = getOpenAI();
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert R&D Tax Incentive reviewer. Identify risks that could lead to application rejection and provide actionable recommendations.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      temperature: 0.3,
+      max_tokens: 800,
+    });
+
+    const response = completion.choices[0]?.message?.content || "";
+    const lines = response.split("\n").filter((line) => line.trim());
+
+    const risks = [];
+    const strengthAreas = [];
+    let overallAssessment = "";
+    let currentRisk: any = null;
+
+    for (const line of lines) {
+      const riskMatch = line.match(/^(.+?)\s*\((CRITICAL|HIGH|MEDIUM|LOW)\):\s*(.+)$/i);
+      const recMatch = line.match(/^RECOMMENDATION:\s*(.+)$/i);
+
+      if (riskMatch) {
+        if (currentRisk) risks.push(currentRisk);
+        currentRisk = {
+          category: riskMatch[1].trim(),
+          severity: riskMatch[2].toLowerCase() as "critical" | "high" | "medium" | "low",
+          issue: riskMatch[3].trim(),
+          recommendation: "",
+        };
+      } else if (recMatch && currentRisk) {
+        currentRisk.recommendation = recMatch[1].trim();
+      } else if (line.toLowerCase().includes("overall") || line.toLowerCase().includes("assessment")) {
+        const assessmentStart = lines.indexOf(line);
+        overallAssessment = lines
+          .slice(assessmentStart + 1, assessmentStart + 4)
+          .join(" ")
+          .trim();
+      } else if (line.match(/^[-*•✓]/)) {
+        const strength = line.replace(/^[-*•✓\d.)\s]+/, "").trim();
+        if (strength.length > 10 && !strength.toLowerCase().includes("risk")) {
+          strengthAreas.push(strength);
+        }
+      }
+    }
+
+    if (currentRisk) risks.push(currentRisk);
+
+    return {
+      risks,
+      overallAssessment: overallAssessment || "Application requires review before submission.",
+      strengthAreas,
+    };
+  } catch (error) {
+    console.error("Error analyzing submission risks:", error);
+    throw new Error("Failed to analyze submission risks");
   }
 }

@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Edit, CheckCircle, AlertCircle, FileText, TrendingUp, AlertTriangle, Info, Clock } from "lucide-react";
+import { Loader2, Edit, CheckCircle, AlertCircle, FileText, TrendingUp, AlertTriangle, Info, Clock, ClipboardList } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { RiskDetector } from "@/components/risk-detector";
@@ -207,6 +207,15 @@ export default function ProjectReviewPage({ params }: { params: Promise<{ id: st
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {project.status === "APPROVED" && (
+              <Button
+                variant="outline"
+                onClick={() => router.push(`/portal/projects/${resolvedParams.id}/progress`)}
+              >
+                <ClipboardList className="h-4 w-4 mr-2" />
+                Progress Reports
+              </Button>
+            )}
             <Button
               variant="outline"
               onClick={() => router.push(`/portal/projects/${resolvedParams.id}/evidence`)}
