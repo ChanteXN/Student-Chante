@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,19 +43,13 @@ interface ProjectDecision {
 export default function ProjectDecisionPage() {
   const params = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: _session } = useSession();
   const { toast } = useToast();
   const [data, setData] = useState<ProjectDecision | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
 
-  useEffect(() => {
-    if (params.id) {
-      fetchDecision();
-    }
-  }, [params.id]);
-
-  const fetchDecision = async () => {
+  const fetchDecision = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`/api/projects/${params.id}/decision`);
@@ -76,7 +70,13 @@ export default function ProjectDecisionPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.id, toast]);
+
+  useEffect(() => {
+    if (params.id) {
+      fetchDecision();
+    }
+  }, [params.id, fetchDecision]);
 
   const handleDownloadLetter = async () => {
     try {
@@ -359,7 +359,7 @@ export default function ProjectDecisionPage() {
                 <div>
                   <h4 className="font-medium mb-1">Resubmit Application</h4>
                   <p className="text-sm text-gray-600">
-                    Once you've addressed the concerns, you may submit a new application.
+                    Once you&apos;ve addressed the concerns, you may submit a new application.
                   </p>
                 </div>
               </div>

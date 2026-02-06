@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -57,11 +57,7 @@ export default function ReviewProgressReportPage() {
   const [feedback, setFeedback] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
 
-  useEffect(() => {
-    fetchReport();
-  }, [reportId]);
-
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/progress-reports/${reportId}`);
       if (!response.ok) {
@@ -84,7 +80,11 @@ export default function ReviewProgressReportPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [reportId, toast]);
+
+  useEffect(() => {
+    fetchReport();
+  }, [fetchReport]);
 
   const handleAccept = async () => {
     setActionLoading("accept");
@@ -110,11 +110,11 @@ export default function ReviewProgressReportPage() {
 
       // Refresh report
       await fetchReport();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error accepting report:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Failed to accept report",
         variant: "destructive",
       });
     } finally {
@@ -157,11 +157,11 @@ export default function ReviewProgressReportPage() {
       // Refresh report
       await fetchReport();
       setShowFeedback(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error requesting changes:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Failed to request changes",
         variant: "destructive",
       });
     } finally {

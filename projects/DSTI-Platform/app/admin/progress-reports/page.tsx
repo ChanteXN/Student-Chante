@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -47,10 +47,6 @@ export default function AdminProgressReportsPage() {
     fetchReports();
   }, []);
 
-  useEffect(() => {
-    filterReports();
-  }, [searchTerm, statusFilter, reports]);
-
   const fetchReports = async () => {
     try {
       const response = await fetch("/api/admin/progress-reports");
@@ -66,7 +62,7 @@ export default function AdminProgressReportsPage() {
     }
   };
 
-  const filterReports = () => {
+  const filterReports = useCallback(() => {
     let filtered = reports;
 
     // Filter by status
@@ -87,7 +83,11 @@ export default function AdminProgressReportsPage() {
     }
 
     setFilteredReports(filtered);
-  };
+  }, [reports, statusFilter, searchTerm]);
+
+  useEffect(() => {
+    filterReports();
+  }, [filterReports]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -276,7 +276,7 @@ export default function AdminProgressReportsPage() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Link href={`/admin/progress-reports/${report.id}` as any}>
+                    <Link href={`/admin/progress-reports/${report.id}`}>
                       <Button variant="default" size="sm">
                         <Eye className="h-4 w-4 mr-2" />
                         Review
