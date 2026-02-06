@@ -17,7 +17,7 @@ export async function GET(
     const resolvedParams = await params;
 
     // Fetch project with decision and organization
-    const project = (await prisma.project.findUnique({
+    const project = await prisma.project.findUnique({
       where: { id: resolvedParams.id },
       include: {
         organisation: {
@@ -31,7 +31,7 @@ export async function GET(
         },
         decision: true,
       },
-    })) as any;
+    });
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });

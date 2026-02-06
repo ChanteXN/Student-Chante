@@ -129,8 +129,8 @@ export async function POST(
         ...(challenges && { challenges }),
         submittedBy: session.user.id,
         submittedAt: new Date(),
-        status: "SUBMITTED",
-      } as any,
+        status: "SUBMITTED" as const,
+      },
     });
 
     // Log audit event

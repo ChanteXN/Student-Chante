@@ -462,10 +462,10 @@ Then provide:
     const response = completion.choices[0]?.message?.content || "";
     const lines = response.split("\n").filter((line) => line.trim());
 
-    const risks = [];
-    const strengthAreas = [];
+    const risks: Array<{ category: string; severity: "critical" | "high" | "medium" | "low"; issue: string; recommendation: string }> = [];
+    const strengthAreas: string[] = [];
     let overallAssessment = "";
-    let currentRisk: any = null;
+    let currentRisk: { category: string; severity: "critical" | "high" | "medium" | "low"; issue: string; recommendation: string } | null = null;
 
     for (const line of lines) {
       const riskMatch = line.match(/^(.+?)\s*\((CRITICAL|HIGH|MEDIUM|LOW)\):\s*(.+)$/i);
