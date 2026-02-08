@@ -152,17 +152,21 @@ export function calculateReadinessScore(project: ProjectData): ReadinessResult {
 
   // Check 3: Methodology section describes experiments
   const methodologySection = project.sections.find((s) => s.sectionKey === "methodology");
-  const methodologyText = methodologySection?.sectionData?.methodology as string | undefined;
+  const researchApproach = methodologySection?.sectionData?.researchApproach as string | undefined;
+  const innovationDescription = methodologySection?.sectionData?.innovationDescription as string | undefined;
+  const experimentsPlanned = methodologySection?.sectionData?.experimentsPlanned as string | undefined;
   
-  if (methodologyText && methodologyText.length >= 100) {
+  const totalMethodologyLength = (researchApproach?.length || 0) + (innovationDescription?.length || 0) + (experimentsPlanned?.length || 0);
+  
+  if (totalMethodologyLength >= 100) {
     qualityScore += 5;
-  } else if (methodologySection) {
+  } else if (methodologySection && Object.keys(methodologySection.sectionData).length > 0) {
     fixes.push({
       id: "weak-methodology",
       severity: "warning",
       category: "quality",
       title: "Detail your R&D methodology",
-      description: "Describe the systematic approach and experiments planned (minimum 100 characters).",
+      description: "Describe the systematic approach and experiments planned (minimum 100 characters total).",
       section: "methodology",
       points: 5,
     });
@@ -170,17 +174,25 @@ export function calculateReadinessScore(project: ProjectData): ReadinessResult {
 
   // Check 4: Team section has multiple team members
   const teamSection = project.sections.find((s) => s.sectionKey === "team");
-  const teamData = teamSection?.sectionData?.team;
+  const teamSize = teamSection?.sectionData?.teamSize as string | undefined;
+  const keyPersonnel = teamSection?.sectionData?.keyPersonnel as string | undefined;
+  const qualifications = teamSection?.sectionData?.qualifications as string | undefined;
+  const rolesResponsibilities = teamSection?.sectionData?.rolesResponsibilities as string | undefined;
   
-  if (Array.isArray(teamData) && teamData.length >= 2) {
+  // Check if team section has substantial data (at least 2 fields filled with meaningful content)
+  const filledFields = [teamSize, keyPersonnel, qualifications, rolesResponsibilities].filter(
+    field => field && field.length >= 20
+  );
+  
+  if (filledFields.length >= 2) {
     qualityScore += 5;
-  } else if (teamSection) {
+  } else if (teamSection && Object.keys(teamSection.sectionData).length > 0) {
     fixes.push({
       id: "incomplete-team",
       severity: "info",
       category: "quality",
       title: "Add team members",
-      description: "Include at least 2 team members with their roles and responsibilities.",
+      description: "Include team size, key personnel, qualifications, and roles with sufficient detail (at least 2 fields with 20+ characters each).",
       section: "team",
       points: 5,
     });
