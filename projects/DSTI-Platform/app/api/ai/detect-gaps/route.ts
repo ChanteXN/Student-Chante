@@ -4,6 +4,9 @@ import { auth } from "@/lib/auth";
 import { scanResponseForViolations, sanitizeResponse } from "@/lib/ai/guardrails";
 import { prisma } from "@/lib/prisma";
 
+// Vercel: Extend max duration for AI requests (requires Pro plan for >10s)
+export const maxDuration = 60;
+
 // Using mock responses for testing (OpenAI billing not yet configured)
 const USE_MOCK = false;
 

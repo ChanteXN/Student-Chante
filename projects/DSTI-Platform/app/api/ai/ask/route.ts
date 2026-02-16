@@ -8,6 +8,9 @@ import {
   sanitizeResponse,
 } from "@/lib/ai/guardrails";
 
+// Vercel: Extend max duration for AI requests (requires Pro plan for >10s)
+export const maxDuration = 60;
+
 // Using mock responses for testing (OpenAI billing not yet configured)
 const USE_MOCK = false;
 
